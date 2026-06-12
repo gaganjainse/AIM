@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import hashlib
-import hmac
-import hmac as hmac_mod
-import os
-from datetime import datetime
 from functools import lru_cache
 from typing import Any
 
 from repositories.db_utils import db_cursor
+
+
+def _get_log_connection():
+    """Get a separate database connection for logging (won't interfere with main transaction)."""
+    from database.db import get_db_connection
+    return get_db_connection()
 
 
 @lru_cache(maxsize=1)
@@ -92,7 +93,7 @@ def log_action(
         sql, values = _build_log_insert(action, user_id=user_id, ip_address=ip_address, target_table=target_table, target_id=target_id)
         if not sql:
             return False
-        conn = get_db_connection()
+        conn = _get_log_connection()
         cursor = conn.cursor()
         cursor.execute(sql, values)
         conn.commit()
