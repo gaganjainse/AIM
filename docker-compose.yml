@@ -19,14 +19,13 @@ services:
     build:
       context: .
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       DB_HOST: db
       DB_PORT: 3306
       DB_USER: root
       DB_NAME: ${DB_NAME:-attendance_db}
       DB_PASSWORD: ${DB_PASSWORD:-change-me}
+      FLASK_SECRET: ${FLASK_SECRET:-docker-secret-change-me}
     depends_on:
       db:
         condition: service_healthy
