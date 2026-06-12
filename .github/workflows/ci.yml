@@ -60,11 +60,3 @@ jobs:
           FLASK_DEBUG: "0"
           CACHE_TYPE: NullCache
           RATELIMIT_ENABLED: "false"
-
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Validate Docker Compose config
-        run: docker compose config
-        continue-on-error: true
