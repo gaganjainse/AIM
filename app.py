@@ -152,6 +152,7 @@ def create_app() -> Flask:
             session["_csrf_token"] = secrets.token_urlsafe(32)
 
         def csrf_field() -> Markup:
+            # nosec B704 - CSRF token is server-generated, not user input
             return Markup(f'<input type="hidden" name="csrf_token" value="{session["_csrf_token"]}">')
 
         try:
