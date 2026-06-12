@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Attendance chart",
+    "Read the student’s attendance over time with a stepped chart that keeps present, leave, and absent states distinct.",
+    eyebrow="Student timeline",
+    chips=[
+        {"label": student.first_name ~ " " ~ student.last_name, "tone": "light", "icon": "bi-person-vcard"},
+        {"label": "Roll " ~ student.roll, "tone": "light", "icon": "bi-hash"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('students.student_profile', id=student_id) }}" class="btn btn-ui-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to profile</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="surface-panel mt-4">
+    <div class="section-title">
+        <div>
+            <h2>Status scale</h2>
+            <p class="mb-0">0 = absent, 1 = leave, 2 = present. Hover over the chart for the exact label.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            {{ ui.status_badge("Absent", "danger") }}
+            {{ ui.status_badge("Leave", "warning") }}
+            {{ ui.status_badge("Present", "success") }}
+        </div>
+    </div>
+    <div style="height: 24rem;">
+        <canvas id="studentChart"></canvas>
+    </div>
+</section>
+
+<script id="student-chart-data" type="application/json">
+{{ {
+    "dates": dates,
+    "values": values
+}|tojson }}
+</script>
+
+{% endblock %}

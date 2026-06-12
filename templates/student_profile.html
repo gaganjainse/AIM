@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    student.first_name ~ " " ~ student.last_name,
+    "Review this student’s attendance summary and jump into the timeline chart when you need more detail.",
+    eyebrow="Student profile",
+    chips=[
+        {"label": "Roll " ~ student.roll, "tone": "light", "icon": "bi-person-vcard"},
+        {"label": stats|length ~ " status types", "tone": "light", "icon": "bi-bar-chart"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('students.student_chart', id=student.id) }}" class="btn btn-ui-secondary">
+            <i class="bi bi-graph-up"></i>
+            <span>Attendance chart</span>
+        </a>
+        <a href="{{ url_for('students.students') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to students</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="three-grid mt-4">
+    {% for stat in stats %}
+        {% if stat.status == 'Present' %}
+            {{ ui.metric_card("Present", stat.count, "Recorded present entries", "bi-check2-circle", "success") }}
+        {% elif stat.status == 'Absent' %}
+            {{ ui.metric_card("Absent", stat.count, "Recorded absent entries", "bi-x-circle", "danger") }}
+        {% else %}
+            {{ ui.metric_card("Leave", stat.count, "Recorded leave entries", "bi-moon-stars", "warning") }}
+        {% endif %}
+    {% else %}
+        {{ ui.metric_card("Attendance records", 0, "No attendance entries yet", "bi-clipboard-x", "info") }}
+    {% endfor %}
+</section>
+
+{% endblock %}

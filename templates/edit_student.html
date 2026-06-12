@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Edit student",
+    "Fallback edit form for the student record when you need a direct page instead of the modal workflow.",
+    eyebrow="Student editor",
+    chips=[
+        {"label": student.roll, "tone": "light", "icon": "bi-person-vcard"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('students.students') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to students</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="surface-panel mt-4">
+    <form method="POST" action="{{ url_for('students.update_student', id=student.id) }}">
+        {{ csrf_field()|safe }}
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label" for="editRoll">Roll no.</label>
+                <input id="editRoll" type="text" name="roll" class="form-control" value="{{ student.roll }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="editFirstName">First name</label>
+                <input id="editFirstName" type="text" name="first_name" class="form-control" value="{{ student.first_name }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="editLastName">Last name</label>
+                <input id="editLastName" type="text" name="last_name" class="form-control" value="{{ student.last_name }}" required>
+            </div>
+        </div>
+        <div class="button-row mt-4">
+        <button type="submit" class="btn btn-ui-primary">
+                <i class="bi bi-save"></i>
+                <span>Save changes</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+{% endblock %}

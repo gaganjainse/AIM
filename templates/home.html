@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Home",
+    "Start from a clear operational home page with the most common actions, current session context, and the quickest routes into the system.",
+    eyebrow="Welcome",
+    chips=[
+        {"label": settings.get('year', settings.get('semester_name', '2026-27')), "tone": "light", "icon": "bi-calendar-event"},
+        {"label": active_theme|title ~ " mode", "tone": "light", "icon": "bi-circle-half"},
+        {"label": session.get('role', 'teacher')|title, "tone": "light", "icon": "bi-person-badge"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-speedometer2"></i>
+            <span>Open dashboard</span>
+        </a>
+        <a href="{{ url_for('attendance.attendance') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-clipboard-check"></i>
+            <span>Mark attendance</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="hero-grid mt-4">
+    <article class="surface-panel home-hero">
+        <div class="section-title">
+            <div>
+                <h2>Daily flow</h2>
+                <p class="mb-0">Use this page as the clean jumping-off point for the tasks most people do every day.</p>
+            </div>
+        </div>
+        <div class="feature-list">
+            <article class="feature-item">
+                <div class="feature-item__icon"><i class="bi bi-people-fill"></i></div>
+                <div class="feature-item__body">
+                    <strong>Manage student records</strong>
+                    <span>Add new students, edit roll numbers, and keep imports consistent before marking attendance.</span>
+                </div>
+            </article>
+            <article class="feature-item">
+                <div class="feature-item__icon"><i class="bi bi-calendar3"></i></div>
+                <div class="feature-item__body">
+                    <strong>Move through dates safely</strong>
+                    <span>Calendar rules, date pickers, and edit windows now behave consistently across light and dark themes.</span>
+                </div>
+            </article>
+            <article class="feature-item">
+                <div class="feature-item__icon"><i class="bi bi-shield-check"></i></div>
+                <div class="feature-item__body">
+                    <strong>Stay inside your permission scope</strong>
+                    <span>Teachers and admins share one interface, but the app still protects restricted actions and historic edits.</span>
+                </div>
+            </article>
+        </div>
+    </article>
+
+    <article class="surface-panel surface-panel--soft">
+        <div class="section-title">
+            <div>
+                <h2>Quick actions</h2>
+                <p class="mb-0">Common next steps without digging through navigation.</p>
+            </div>
+        </div>
+        <div class="quick-actions-grid">
+            <a class="btn btn-ui-secondary w-100" href="{{ url_for('students.students') }}">
+                <i class="bi bi-people"></i>
+                <span>Students</span>
+            </a>
+            <a class="btn btn-ui-secondary w-100" href="{{ url_for('attendance.attendance') }}">
+                <i class="bi bi-check2-square"></i>
+                <span>Attendance</span>
+            </a>
+            <a class="btn btn-ui-secondary w-100" href="{{ url_for('calendar.calendar') }}">
+                <i class="bi bi-calendar-week"></i>
+                <span>Calendar</span>
+            </a>
+            <a class="btn btn-ui-secondary w-100" href="{{ url_for('reports.report') }}">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                <span>Reports</span>
+            </a>
+        </div>
+        <div class="details-grid mt-4">
+            <article class="detail-card">
+                <span class="detail-card__label">System name</span>
+                <span class="detail-card__value">{{ system_name }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Current user</span>
+                <span class="detail-card__value">{{ session.get('user', 'User') }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Role</span>
+                <span class="detail-card__value">{{ session.get('role', 'teacher')|title }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Theme</span>
+                <span class="detail-card__value">{{ active_theme|title }}</span>
+            </article>
+        </div>
+    </article>
+</section>
+
+<section class="three-grid mt-4">
+    <article class="surface-panel">
+        <h2 class="panel-title mb-3">Students module</h2>
+        <p class="muted-copy mb-3">Search, filter, import CSVs, and open profiles from one table without leaving the workspace shell.</p>
+        <a href="{{ url_for('students.students') }}" class="btn btn-ui-secondary">Open student management</a>
+    </article>
+    <article class="surface-panel">
+        <h2 class="panel-title mb-3">Attendance module</h2>
+        <p class="muted-copy mb-3">Bulk mark presence, handle older dates within policy, and use more visible status selectors.</p>
+        <a href="{{ url_for('attendance.attendance') }}" class="btn btn-ui-secondary">Open attendance</a>
+    </article>
+    <article class="surface-panel">
+        <h2 class="panel-title mb-3">Reports module</h2>
+        <p class="muted-copy mb-3">Review attendance quality, export CSVs, and use the dashboard for a more analytical view.</p>
+        <a href="{{ url_for('reports.report') }}" class="btn btn-ui-secondary">Open reports</a>
+    </article>
+</section>
+
+{% endblock %}

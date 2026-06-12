@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Search",
+    "Search students, attendance, users, and logs from a single cross-system results page.",
+    eyebrow="Global search",
+    chips=[
+        {"label": q if q else "No active query", "tone": "light", "icon": "bi-search"},
+        {"label": (students|length + attendance|length + users|length + logs|length) ~ " results", "tone": "light", "icon": "bi-grid"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to dashboard</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="surface-panel mt-4">
+    <form method="GET" action="{{ url_for('search.search') }}" class="row g-3 align-items-end">
+        <div class="col-lg-6">
+            <label class="form-label" for="globalSearch">Search term</label>
+            <input id="globalSearch" type="search" name="q" class="form-control" value="{{ q }}" placeholder="Search students, attendance, users, or logs">
+        </div>
+        <div class="col-sm-6 col-lg-2">
+            <button class="btn btn-ui-utility w-100" type="submit">
+                <i class="bi bi-search"></i>
+                <span>Search</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+{% if not q %}
+<section class="mt-4">
+    {{ ui.empty_state("Start with a search term", "Type a name, roll number, status, or username to search across the system.", "bi-search") }}
+</section>
+{% else %}
+<section class="two-grid mt-4">
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Students</h2>
+                <p class="mb-0">{{ students|length }} matching records.</p>
+            </div>
+        </div>
+        {% if students %}
+        <div class="stack-list">
+            {% for student in students %}
+            <a class="list-row text-decoration-none" href="{{ url_for('students.student_profile', id=student.id) }}">
+                <div>
+                    <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+                    <div class="text-muted small">Roll {{ student.roll }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No matching students.</p>
+        {% endif %}
+    </article>
+
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Attendance</h2>
+                <p class="mb-0">{{ attendance|length }} matching records.</p>
+            </div>
+        </div>
+        {% if attendance %}
+        <div class="stack-list">
+            {% for row in attendance %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ row.first_name }} {{ row.last_name }}</strong>
+                    <div class="text-muted small">Roll {{ row.roll }} · {{ row.date }} · {{ row.status }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No matching attendance rows.</p>
+        {% endif %}
+    </article>
+
+    {% if session.get('role') == 'admin' %}
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Users</h2>
+                <p class="mb-0">{{ users|length }} matching accounts.</p>
+            </div>
+        </div>
+        {% if users %}
+        <div class="stack-list">
+            {% for user in users %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ user.username }}</strong>
+                    <div class="text-muted small">{{ user.email or 'No email' }} · {{ user.role_name or 'No role' }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No matching users.</p>
+        {% endif %}
+    </article>
+
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Logs</h2>
+                <p class="mb-0">{{ logs|length }} matching entries.</p>
+            </div>
+        </div>
+        {% if logs %}
+        <div class="stack-list">
+            {% for log in logs %}
+            <div class="list-row">
+                <div>
+                    <strong>{{ log.username }}</strong>
+                    <div class="text-muted small">
+                        {{ log.action }}{% if log.target_table %} · {{ log.target_table }}{% if log.target_id is not none %} #{{ log.target_id }}{% endif %}{% endif %}
+                    </div>
+                    <div class="text-muted small">{{ log.time }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No matching logs.</p>
+        {% endif %}
+    </article>
+    {% endif %}
+</section>
+{% endif %}
+
+{% endblock %}

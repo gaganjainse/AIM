@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Preferences",
+    "Control the app theme, record density, email behavior, and per-alert notification settings from one organized page.",
+    eyebrow="Preferences",
+    chips=[
+        {"label": (user.theme or 'light')|title ~ " theme", "tone": "light", "icon": "bi-circle-half"},
+        {"label": (user.records_per_page or 10) ~ " rows per page", "tone": "light", "icon": "bi-layout-text-sidebar"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('auth.account') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-person-circle"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="two-grid mt-4">
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Display and account preferences</h2>
+                <p class="mb-0">These settings control visual presentation and account-level email behavior.</p>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('auth.update_preferences') }}" id="preferencesForm">
+            {{ csrf_field()|safe }}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="prefTheme">Theme</label>
+                    <select id="prefTheme" name="theme" class="form-select">
+                        <option value="light" {% if user.theme == 'light' %}selected{% endif %}>Light</option>
+                        <option value="dark" {% if user.theme == 'dark' %}selected{% endif %}>Dark</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="recordsPerPage">Records per page</label>
+                    <input id="recordsPerPage" type="number" name="records_per_page" class="form-control" value="{{ user.records_per_page or 10 }}" min="5" max="100">
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="emailAddress">Email</label>
+                    <input id="emailAddress" type="email" name="email" class="form-control" value="{{ user.email or '' }}" placeholder="you@example.com">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="emailNotifications">Email notifications</label>
+                    <select id="emailNotifications" name="email_notifications" class="form-select">
+                        <option value="1" {% if user.email_notifications %}selected{% endif %}>Enabled</option>
+                        <option value="0" {% if not user.email_notifications %}selected{% endif %}>Disabled</option>
+                    </select>
+                </div>
+            </div>
+            <div class="button-row mt-4">
+                <button
+                    type="button"
+                    class="btn btn-ui-primary"
+                    data-confirm-form="preferencesForm"
+                    data-confirm-title="Save preferences"
+                    data-confirm-message="Apply these display preferences now?"
+                    data-confirm-label="Save preferences"
+                    data-confirm-class="btn-ui-primary"
+                    data-confirm-icon="bi-save">
+                    <i class="bi bi-save"></i>
+                    <span>Save preferences</span>
+                </button>
+            </div>
+        </form>
+    </article>
+
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Notification preferences</h2>
+                <p class="mb-0">Choose which events should appear in your personal notification stream.</p>
+            </div>
+        </div>
+        <form method="POST" action="{{ url_for('auth.update_notification_settings') }}" id="notificationSettingsForm">
+            {{ csrf_field()|safe }}
+            <div class="row g-3">
+                {% for key, label in [
+                    ('low_attendance', 'Low attendance'),
+                    ('password_change', 'Password change'),
+                    ('new_student', 'New student added'),
+                    ('attendance_saved', 'Attendance saved'),
+                    ('system_alerts', 'System alerts'),
+                    ('login_alerts', 'Login alerts'),
+                    ('attendance_updates', 'Attendance updates'),
+                    ('role_changes', 'Role changes'),
+                    ('account_locked', 'Account locked'),
+                    ('backup_completed', 'Backup completed')
+                ] %}
+                <div class="col-md-6">
+                    <label class="form-label" for="{{ key }}">{{ label }}</label>
+                    <select id="{{ key }}" name="{{ key }}" class="form-select">
+                        <option value="1" {% if user[key] %}selected{% endif %}>Enabled</option>
+                        <option value="0" {% if not user[key] %}selected{% endif %}>Disabled</option>
+                    </select>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="button-row mt-4">
+                <button
+                    type="button"
+                    class="btn btn-ui-primary"
+                    data-confirm-form="notificationSettingsForm"
+                    data-confirm-title="Save notification settings"
+                    data-confirm-message="Save these notification preferences?"
+                    data-confirm-label="Save settings"
+                    data-confirm-class="btn-ui-primary"
+                    data-confirm-icon="bi-bell-fill">
+                    <i class="bi bi-bell-fill"></i>
+                    <span>Save notification settings</span>
+                </button>
+            </div>
+        </form>
+    </article>
+</section>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Reports",
+    "Review student attendance performance, threshold risk, and export-ready attendance summaries from one cleaner report view.",
+    eyebrow="Attendance report",
+    chips=[
+        {"label": threshold|round(0) ~ "% threshold", "tone": "light", "icon": "bi-percent"},
+        {"label": records|length ~ " students", "tone": "light", "icon": "bi-people-fill"}
+    ]
+) %}
+    <div class="button-row">
+        <button
+            type="button"
+            class="btn btn-ui-utility"
+            data-download-url="{{ url_for('reports.export_report') }}"
+            data-download-filename="attendance_report.csv"
+            data-download-message="Attendance report downloaded.">
+            <i class="bi bi-file-earmark-arrow-down"></i>
+            <span>Export CSV</span>
+        </button>
+    </div>
+{% endcall %}
+
+<section class="three-grid mt-4">
+    {{ ui.metric_card("Threshold", threshold|round(0) ~ "%", "Attendance below this line is flagged.", "bi-speedometer", "brand") }}
+    {{ ui.metric_card("Students tracked", records|length, "Every student included in the report dataset.", "bi-people", "info") }}
+    {{ ui.metric_card("Legend", "Good / Average / Low", "Color-coded labels stay consistent across the report.", "bi-palette", "warning") }}
+</section>
+
+<section class="surface-panel mt-4">
+    <div class="section-title">
+        <div>
+            <h2>Attendance summary table</h2>
+            <p class="mb-0">Use sorting to compare students by roll number, totals, or attendance percentage.</p>
+        </div>
+    </div>
+
+    {% if records %}
+    <div class="table-shell report-table-shell">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover report-summary-table" data-sortable>
+                <thead>
+                    <tr>
+                        <th><button type="button" class="table-sort-button" data-sort-column="0">Roll no.</button></th>
+                        <th><button type="button" class="table-sort-button" data-sort-column="1">Student name</button></th>
+                        <th><button type="button" class="table-sort-button" data-sort-column="2">Present</button></th>
+                        <th><button type="button" class="table-sort-button" data-sort-column="3">Absent</button></th>
+                        <th><button type="button" class="table-sort-button" data-sort-column="4">Leave</button></th>
+                        <th><button type="button" class="table-sort-button" data-sort-column="5">Total</button></th>
+                        <th><button type="button" class="table-sort-button" data-sort-column="6">Percentage</button></th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in records %}
+                    <tr>
+                        <td>{{ row.roll }}</td>
+                        <td>{{ row.first_name }} {{ row.last_name }}</td>
+                        <td>{{ row.present_days }}</td>
+                        <td>{{ row.absent_days }}</td>
+                        <td>{{ row.leave_days }}</td>
+                        <td>{{ row.total_days }}</td>
+                        <td>{{ row.percentage }}%</td>
+                        <td class="report-summary-table__status">
+                            <div class="d-flex flex-column report-status-stack report-status-stack--{{ row.color }}">
+                                {% if row.color == 'success' %}
+                                    {{ ui.status_badge(row.label, "success") }}
+                                {% elif row.color == 'warning' %}
+                                    {{ ui.status_badge(row.label, "warning") }}
+                                {% else %}
+                                    {{ ui.status_badge(row.label, "danger") }}
+                                {% endif %}
+                                <div class="progress report-progress">
+                                    <div class="progress-bar report-progress__bar report-progress__bar--{{ row.color }}" role="progressbar" style="width: {{ row.percentage }}%" aria-valuenow="{{ row.percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    {{ ui.empty_state("No report data available", "Once attendance is marked, this page will summarize each student’s attendance percentage and status.", "bi-bar-chart") }}
+    {% endif %}
+</section>
+
+{% endblock %}

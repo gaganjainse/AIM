@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+    <div class="surface-panel text-center p-5" style="max-width: 32rem;">
+        <div class="mb-3" style="font-size: 3rem;">🚫</div>
+        <h1 class="h3 mb-2">Access Denied</h1>
+        <p class="text-muted mb-4">You don't have permission to access this page. Contact your administrator if you believe this is an error.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-ui-primary">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('auth.account') }}" class="btn btn-ui-secondary">
+                <i class="bi bi-person-circle"></i>
+                <span>My Account</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

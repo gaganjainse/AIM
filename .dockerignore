@@ -1,0 +1,48 @@
+# Version control
+.git
+.gitignore
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment / secrets — never bake into image
+.env
+*.env
+
+# Dev/test artifacts
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+tests/
+
+# Runtime data that should be volumes
+backups/
+data/uploads/
+
+# Docs and non-runtime assets
+docs/
+screenshots/
+submission/
+artifacts/
+*.md
+*.txt
+!requirements.txt
+
+# Packaging / desktop
+packaging/
+desktop_launcher.py
+
+# OS
+.DS_Store
+Thumbs.db

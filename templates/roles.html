@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Roles",
+    "Review role coverage and update permission assignments from a cleaner permission editor with immediate role context.",
+    eyebrow="Roles and permissions",
+    chips=[
+        {"label": roles|length ~ " roles", "tone": "light", "icon": "bi-shield-lock-fill"},
+        {"label": permissions|length ~ " permissions", "tone": "light", "icon": "bi-key-fill"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('admin.users') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-people-fill"></i>
+            <span>Open users</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="three-grid mt-4">
+    {% for role in role_summaries %}
+    <article class="surface-panel {% if selected_role_id == role.id %}surface-panel--soft{% endif %}">
+        <div class="section-title">
+            <div>
+                <h2>{{ role.role_name|upper }}</h2>
+                <p class="mb-0">{{ role.count }} permissions assigned</p>
+            </div>
+            {% if selected_role_id == role.id %}
+                {{ ui.status_badge("Selected", "success") }}
+            {% endif %}
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            {% for permission in role.permissions %}
+                {{ ui.status_badge(permission, "neutral") }}
+            {% else %}
+                <span class="text-muted small">No permissions assigned yet.</span>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('admin.roles', role_id=role.id) }}" class="btn btn-ui-secondary btn-sm">Edit role</a>
+    </article>
+    {% endfor %}
+</section>
+
+<section class="surface-panel mt-4">
+    <div class="section-title">
+        <div>
+            <h2>Permission editor</h2>
+            <p class="mb-0">Toggle permissions for the selected role and save the changes immediately.</p>
+        </div>
+        {% if selected_role_name %}
+            {{ ui.status_badge("Editing " ~ selected_role_name|upper, "brand") }}
+        {% endif %}
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.roles') }}" id="rolePermissionsForm">
+        {{ csrf_field()|safe }}
+        <div class="row g-3">
+            <div class="col-lg-4">
+                <label class="form-label" for="rolePicker">Select role</label>
+                <select id="rolePicker" name="role_id" class="form-select" data-redirect-base="{{ url_for('admin.roles') }}?role_id=">
+                    {% for role in roles %}
+                    <option value="{{ role.id }}" {% if selected_role_id == role.id %}selected{% endif %}>{{ role.role_name|upper }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <div class="three-grid">
+                    {% for permission in permissions|sort(attribute='id') %}
+                    <label class="surface-panel surface-panel--soft d-flex align-items-center justify-content-between gap-3">
+                        <span>
+                            <strong class="d-block">{{ permission.permission_name }}</strong>
+                            <small class="text-muted">Permission #{{ permission.id }}</small>
+                        </span>
+                        <input class="form-check-input" type="checkbox" name="permissions" value="{{ permission.id }}" {% if permission.id in assigned_permissions %}checked{% endif %}>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="button-row mt-4">
+            <button type="submit" class="btn btn-ui-primary">
+                <i class="bi bi-save"></i>
+                <span>Save permissions</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+{% endblock %}

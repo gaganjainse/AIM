@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Profile",
+    "Review account identity, access, theme preferences, and your recent sign-in activity from one account surface.",
+    eyebrow="Account",
+    chips=[
+        {"label": (user.role or 'teacher')|title, "tone": "light", "icon": "bi-person-badge"},
+        {"label": (user.theme or 'light')|title ~ " mode", "tone": "light", "icon": "bi-circle-half"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('auth.change_password') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-key-fill"></i>
+            <span>Change password</span>
+        </a>
+        <a href="{{ url_for('auth.preferences') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-sliders2"></i>
+            <span>Preferences</span>
+        </a>
+    </div>
+{% endcall %}
+
+<section class="split-grid mt-4">
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Account details</h2>
+                <p class="mb-0">Identity, saved preferences, and key account metadata.</p>
+            </div>
+        </div>
+        <div class="details-grid">
+            <article class="detail-card">
+                <span class="detail-card__label">Username</span>
+                <span class="detail-card__value">{{ user.username }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Role</span>
+                <span class="detail-card__value">{{ user.role or 'teacher' }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Theme</span>
+                <span class="detail-card__value">{{ user.theme or 'light' }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Records per page</span>
+                <span class="detail-card__value">{{ user.records_per_page or 10 }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Email</span>
+                <span class="detail-card__value">{{ user.email or 'Not set' }}</span>
+            </article>
+            <article class="detail-card">
+                <span class="detail-card__label">Created</span>
+                <span class="detail-card__value">{{ user.created_at or 'N/A' }}</span>
+            </article>
+        </div>
+
+        <div class="section-title mt-4">
+            <div>
+                <h2>Permission summary</h2>
+                <p class="mb-0">A readable snapshot of the permissions currently available to your account.</p>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            {% for permission in permissions %}
+                {{ ui.status_badge(permission, "neutral") }}
+            {% else %}
+                <span class="text-muted">No permissions assigned.</span>
+            {% endfor %}
+        </div>
+
+        {% if user.role == 'teacher' %}
+        <div class="surface-panel surface-panel--soft mt-4">
+            <h3 class="panel-title mb-2">Teacher edit scope</h3>
+            <div class="d-flex flex-wrap gap-2">
+                {{ ui.status_badge(teacher_policy_label, "warning") }}
+                {{ ui.status_badge(teacher_policy_range, "brand") }}
+            </div>
+        </div>
+        {% endif %}
+    </article>
+
+    <article class="surface-panel">
+        <div class="section-title">
+            <div>
+                <h2>Recent activity</h2>
+                <p class="mb-0">The latest account-related events recorded in the audit log.</p>
+            </div>
+        </div>
+        {% if login_activity %}
+        <div class="timeline-list">
+            {% for item in login_activity %}
+            <article class="timeline-item">
+                <div class="timeline-item__title">{{ item.action }}</div>
+                <div class="timeline-item__meta">{{ item.ip_address or 'Unknown IP' }} · {{ item.time }}</div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        {{ ui.empty_state("No activity recorded yet", "Recent sign-in and security events will appear here as they are logged.", "bi-shield-check") }}
+        {% endif %}
+
+        <div class="button-row mt-4">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-ui-secondary">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <button type="button" class="btn btn-ui-danger" data-open-logout>
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </article>
+</section>
+
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% set selected_status_label = 'Editable' if can_edit_old_attendance else 'Restricted' %}
+{% call ui.page_header(
+    "Attendance",
+    "Mark attendance with theme-aware status controls, clearer date loading, and reliable handling for teacher edit windows.",
+    eyebrow="Attendance management",
+    chips=[
+        {"label": selected_date, "tone": "light", "icon": "bi-calendar-date"},
+        {"label": selected_status_label, "tone": "light", "icon": "bi-shield-check"}
+    ]
+) %}
+    <div class="button-row">
+        {% if can_import_attendance %}
+        <button type="button" class="btn btn-ui-utility" data-bs-toggle="modal" data-bs-target="#importAttendanceModal">
+            <i class="bi bi-upload"></i>
+            <span>Import attendance</span>
+        </button>
+        {% endif %}
+        <a href="{{ url_for('calendar.calendar') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-calendar3"></i>
+            <span>Open calendar</span>
+        </a>
+        <button type="button" class="btn btn-ui-utility" data-attendance-randomize
+            title="Fill today's sheet with realistic demo data (80% present, 12% absent, 8% leave)">
+            <i class="bi bi-dice-3"></i>
+            <span>Generate demo attendance</span>
+        </button>
+    </div>
+{% endcall %}
+
+<section class="surface-panel mt-4">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-lg-4">
+            <label class="form-label" for="attendanceDate">Attendance date</label>
+            <div class="field-with-picker">
+                <input id="attendanceDate" type="date" name="date" value="{{ selected_date }}" class="form-control" {% if not can_edit_old_attendance %}readonly{% endif %}>
+                <button type="button" class="field-action" data-open-picker="attendanceDate" aria-label="Open attendance date picker">
+                    <i class="bi bi-calendar-event"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            {% if can_edit_old_attendance %}
+                {{ ui.status_badge("Selected date is within your edit scope", "success") }}
+            {% else %}
+                {{ ui.status_badge("Teachers can edit only within the allowed policy window", "warning") }}
+            {% endif %}
+            <p class="muted-copy mt-2 mb-0">Teacher policy: {{ teacher_policy_label }}.</p>
+        </div>
+        <div class="col-lg-2">
+            <button class="btn btn-ui-utility w-100" type="submit">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Load date</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="surface-panel mt-4">
+    <div class="section-title">
+        <div>
+            <h2>Bulk status helpers</h2>
+            <p class="mb-0">Use the quick-fill buttons and fine-tune individual rows only where needed.</p>
+        </div>
+    </div>
+    <div class="button-row">
+        <button type="button" class="btn btn-ui-status btn-ui-status--present" data-attendance-bulk="Present">
+            <i class="bi bi-check2-all"></i>
+            <span>Mark all present</span>
+        </button>
+        <button type="button" class="btn btn-ui-status btn-ui-status--absent" data-attendance-bulk="Absent">
+            <i class="bi bi-x-circle"></i>
+            <span>Mark all absent</span>
+        </button>
+        <button type="button" class="btn btn-ui-status btn-ui-status--leave" data-attendance-bulk="Leave">
+            <i class="bi bi-moon-stars"></i>
+            <span>Mark all leave</span>
+        </button>
+    </div>
+</section>
+
+<form method="POST" id="attendanceForm">
+    {{ csrf_field()|safe }}
+    <input type="hidden" name="attendance_date" value="{{ selected_date }}">
+
+    <section class="surface-panel mt-4">
+        <div class="section-title">
+            <div>
+                <h2>Attendance sheet</h2>
+                <p class="mb-0">Status chips stay color-coded and readable in both themes.</p>
+            </div>
+            {{ ui.status_badge(students|length ~ " students", "brand") }}
+        </div>
+
+        {% if students %}
+        <div class="table-shell attendance-table-shell">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover attendance-sheet-table" data-sortable>
+                    <thead>
+                        <tr>
+                            <th><button type="button" class="table-sort-button" data-sort-column="0">Roll no.</button></th>
+                            <th><button type="button" class="table-sort-button" data-sort-column="1">Student</button></th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.roll }}</td>
+                            <td>{{ student.first_name }} {{ student.last_name }}</td>
+                            <td class="attendance-sheet-table__status">
+                                <div class="field-with-picker attendance-status-field">
+                                    <select name="{{ student.id }}" class="form-select attendance-status">
+                                        <option value="Present" {% if attendance_dict.get(student.id) == 'Present' %}selected{% endif %}>Present</option>
+                                        <option value="Absent" {% if attendance_dict.get(student.id) == 'Absent' %}selected{% endif %}>Absent</option>
+                                        <option value="Leave" {% if attendance_dict.get(student.id) == 'Leave' %}selected{% endif %}>Leave</option>
+                                    </select>
+                                    <span class="field-action" aria-hidden="true"><i class="bi bi-chevron-down"></i></span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        {{ ui.empty_state("No students available", "Add students first so attendance can be marked for the selected date.", "bi-people", url_for('students.students'), "Open students") }}
+        {% endif %}
+
+        <div class="button-row mt-4">
+            <button
+                type="button"
+                class="btn btn-ui-primary"
+                data-confirm-form="attendanceForm"
+                data-confirm-title="Save attendance"
+                data-confirm-message="Save attendance for {{ selected_date }}?"
+                data-confirm-label="Save attendance"
+                data-confirm-class="btn-ui-primary"
+                data-confirm-icon="bi-save">
+                <i class="bi bi-save"></i>
+                <span>Save attendance</span>
+            </button>
+        </div>
+    </section>
+</form>
+
+{% if can_import_attendance %}
+<div class="modal fade" id="importAttendanceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('attendance.import_attendance') }}" enctype="multipart/form-data">
+                {{ csrf_field()|safe }}
+                <div class="modal-header">
+                    <h2 class="modal-title h5 mb-0">Import attendance CSV</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="attendanceCsv">CSV file</label>
+                        <input id="attendanceCsv" type="file" name="csv_file" class="form-control" accept=".csv" required>
+                        <div class="form-text">Required columns: <code>roll</code>, <code>date</code>, <code>status</code>.</div>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-ui-utility btn-sm"
+                        data-download-url="{{ url_for('files.sample_file', filename='sample_attendance.csv') }}"
+                        data-download-filename="sample_attendance.csv"
+                        data-download-message="Sample attendance CSV downloaded.">
+                        <i class="bi bi-download"></i>
+                        <span>Download sample CSV</span>
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ui-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-ui-primary">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <span>Import CSV</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

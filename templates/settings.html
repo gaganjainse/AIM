@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% import "partials/ui.html" as ui %}
+{% block content %}
+
+{% call ui.page_header(
+    "Settings",
+    "Configure system branding, attendance thresholds, teacher edit rules, security limits, and backup behavior from one cleaner settings surface.",
+    eyebrow="System settings",
+    chips=[
+        {"label": settings_map.get('year', settings_map.get('semester_name', '2026-27')), "tone": "light", "icon": "bi-calendar-event"},
+        {"label": settings_map.get('teacher_calendar_policy', 'current_week_only'), "tone": "light", "icon": "bi-shield-check"}
+    ]
+) %}
+    <div class="button-row">
+        <a href="{{ url_for('admin.backup_restore') }}" class="btn btn-ui-secondary">
+            <i class="bi bi-database-fill-lock"></i>
+            <span>Backup &amp; restore</span>
+        </a>
+        <button
+            type="button"
+            class="btn btn-ui-warning"
+            data-confirm-form="restoreDefaultsForm"
+            data-confirm-title="Restore defaults"
+            data-confirm-message="Reset all system settings back to their default values?"
+            data-confirm-label="Restore defaults"
+            data-confirm-class="btn-ui-warning"
+            data-confirm-icon="bi-arrow-counterclockwise">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            <span>Restore defaults</span>
+        </button>
+    </div>
+{% endcall %}
+
+<form id="restoreDefaultsForm" method="POST" action="{{ url_for('admin.restore_defaults') }}" class="d-none" data-no-loader="1">
+    {{ csrf_field()|safe }}
+</form>
+
+<section class="three-grid mt-4">
+    <article class="surface-panel">
+        <h2 class="panel-title mb-2">Academic year</h2>
+        <p class="muted-copy mb-0">Displayed across login, reports, and operational screens.</p>
+    </article>
+    <article class="surface-panel">
+        <h2 class="panel-title mb-2">Teacher edit policy</h2>
+        <p class="muted-copy mb-0">Controls how far teachers can move through historic attendance.</p>
+    </article>
+    <article class="surface-panel">
+        <h2 class="panel-title mb-2">Security limits</h2>
+        <p class="muted-copy mb-0">Sets lockouts, attempt counts, and other production-facing protections.</p>
+    </article>
+</section>
+
+<section class="surface-panel mt-4">
+    <form method="POST" id="settingsForm">
+        {{ csrf_field()|safe }}
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <label class="form-label" for="systemName">System name</label>
+                <input id="systemName" type="text" name="system_name" class="form-control" value="{{ settings_map.get('system_name', 'AIM') }}">
+                <div class="form-text">Used in the shell, the login page, and exported submission assets.</div>
+            </div>
+
+            <div class="col-lg-3">
+                <label class="form-label">Year</label>
+                <div class="surface-panel surface-panel--soft" data-year-group>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-6">
+                            <input type="text" class="form-control" value="{{ year_prefix }}" data-year-prefix inputmode="numeric" maxlength="4" placeholder="2026">
+                        </div>
+                        <div class="col-2 text-center fw-bold">-</div>
+                        <div class="col-4">
+                            <input type="text" class="form-control" value="{{ year_suffix or '' }}" data-year-suffix readonly tabindex="-1">
+                        </div>
+                    </div>
+                    <input type="hidden" name="year" value="{{ settings_map.get('year', settings_map.get('semester_name', '2026-27')) }}" data-year-hidden>
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <label class="form-label" for="attendanceLimit">Attendance limit</label>
+                <input id="attendanceLimit" type="number" name="attendance_limit" class="form-control" value="{{ settings_map.get('attendance_limit', '75') }}" min="0" max="100">
+            </div>
+
+            <div class="col-lg-6">
+                <label class="form-label" for="loginTagline">Login tagline</label>
+                <input id="loginTagline" type="text" name="login_tagline" class="form-control" value="{{ settings_map.get('login_tagline', 'Track attendance without the clutter') }}">
+            </div>
+
+            <div class="col-lg-6">
+                <label class="form-label" for="teacherPolicy">Teacher calendar policy</label>
+                <select id="teacherPolicy" name="teacher_calendar_policy" class="form-select">
+                    {% set policy = settings_map.get('teacher_calendar_policy', 'current_week_only') %}
+                    <option value="current_week_only" {% if policy == 'current_week_only' or policy == 'Current week only' %}selected{% endif %}>Current week only</option>
+                    <option value="current_month_only" {% if policy == 'current_month_only' or policy == 'Current month only' %}selected{% endif %}>Current month only</option>
+                    <option value="current_semester_only" {% if policy == 'current_semester_only' or policy == 'Current semester only' %}selected{% endif %}>Current semester only</option>
+                </select>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label" for="semesterStart">Semester start date</label>
+                <div class="field-with-picker">
+                    <input id="semesterStart" type="date" name="semester_start_date" class="form-control" value="{{ settings_map.get('semester_start_date', '2026-01-01') }}">
+                    <button type="button" class="field-action" data-open-picker="semesterStart" aria-label="Open semester start date picker">
+                        <i class="bi bi-calendar-event"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label" for="semesterEnd">Semester end date</label>
+                <div class="field-with-picker">
+                    <input id="semesterEnd" type="date" name="semester_end_date" class="form-control" value="{{ settings_map.get('semester_end_date', '2026-12-31') }}">
+                    <button type="button" class="field-action" data-open-picker="semesterEnd" aria-label="Open semester end date picker">
+                        <i class="bi bi-calendar-event"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label" for="backupRetention">Backup retention days</label>
+                <input id="backupRetention" type="number" name="backup_retention_days" class="form-control" value="{{ settings_map.get('backup_retention_days', '30') }}" min="1" max="3650">
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label" for="loginAttempts">Max login attempts</label>
+                <input id="loginAttempts" type="number" name="max_login_attempts" class="form-control" value="{{ settings_map.get('max_login_attempts', '5') }}" min="1" max="20">
+            </div>
+
+            <div class="col-lg-4">
+                <label class="form-label" for="lockMinutes">Login lock minutes</label>
+                <input id="lockMinutes" type="number" name="login_lock_minutes" class="form-control" value="{{ settings_map.get('login_lock_minutes', '15') }}" min="1" max="1440">
+            </div>
+        </div>
+
+        <div class="button-row mt-4">
+            <button
+                type="button"
+                class="btn btn-ui-primary"
+                data-confirm-form="settingsForm"
+                data-confirm-title="Save settings"
+                data-confirm-message="Apply these system settings now?"
+                data-confirm-label="Save settings"
+                data-confirm-class="btn-ui-primary"
+                data-confirm-icon="bi-save">
+                <i class="bi bi-save"></i>
+                <span>Save settings</span>
+            </button>
+        </div>
+    </form>
+</section>
+
+{% endblock %}

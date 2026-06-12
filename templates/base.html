@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" data-sidebar-collapsed="0">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>{{ page_title or system_name or "AIM" }}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script>
+        (function () {
+            try {
+                var collapsed = localStorage.getItem("aim.sidebar.collapsed") === "1";
+                document.documentElement.dataset.sidebarCollapsed = collapsed ? "1" : "0";
+                if (collapsed) {
+                    document.documentElement.classList.add("sidebar-collapsed");
+                }
+            } catch (error) {}
+        })();
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css', v='20260421-ui-refresh') }}">
+</head>
+<body class="theme-{{ active_theme }}" data-authenticated="1">
+<a class="skip-link" href="#mainContent">Skip to content</a>
+
+<div id="pageLoader" class="page-loader" aria-hidden="true">
+    <div class="page-spinner"></div>
+</div>
+
+<div class="backdrop" data-shell-backdrop></div>
+
+<div class="mobile-topbar">
+    <div class="mobile-topbar__panel">
+        <div class="mobile-topbar__meta">
+            <span class="mobile-topbar__title">{{ system_name }}</span>
+            <span class="mobile-topbar__subtitle">Attendance workspace</span>
+        </div>
+        <div class="mobile-topbar__actions">
+            <button type="button" class="icon-button" data-mobile-nav-toggle aria-label="Open navigation">
+                <i class="bi bi-list"></i>
+            </button>
+            <button type="button" class="icon-button" data-open-logout aria-label="Open logout dialog">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="app-shell">
+    <aside class="app-sidebar" aria-label="Primary navigation">
+        <div class="sidebar-panel">
+            <div class="sidebar-heading d-lg-none">
+                <span class="sidebar-heading__label">Navigation</span>
+                <button type="button" class="icon-button" data-mobile-nav-close aria-label="Close navigation">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <a href="{{ url_for('dashboard.home') }}" class="sidebar-brand {% if request.path == url_for('dashboard.home') %}active-page{% endif %}">
+                <span class="sidebar-brand__icon">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="AIM logo" class="sidebar-brand__logo-img">
+                </span>
+                <span class="sidebar-brand__copy">
+                    <span class="sidebar-brand__name">{{ system_name }}</span>
+                    <span class="sidebar-brand__meta">Attendance workspace</span>
+                </span>
+            </a>
+
+            <div class="sidebar-toolbar">
+                <button type="button" class="sidebar-button" data-sidebar-toggle aria-label="Collapse sidebar">
+                    <i class="bi bi-layout-sidebar-inset"></i>
+                    <span class="sidebar-link__copy">
+                        <span class="sidebar-link__label">Collapse sidebar</span>
+                        <span class="sidebar-link__note">Keep more room for tables and charts</span>
+                    </span>
+                </button>
+
+                <form class="sidebar-search" action="{{ url_for('search.search') }}" method="GET" role="search">
+                    <input type="search" name="q" class="form-control" placeholder="Search students, logs, users" value="{{ request.args.get('q', '') }}" aria-label="Search the system">
+                    <button type="submit" class="sidebar-search__button" aria-label="Run search">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="sidebar-scroll" data-sidebar-scroll>
+                <section class="sidebar-section">
+                    <div class="sidebar-heading">
+                        <span class="sidebar-heading__label">Workspace</span>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="{{ url_for('dashboard.home') }}" class="sidebar-link {% if request.path == url_for('dashboard.home') %}active-page{% endif %}">
+                            <i class="bi bi-house-door-fill"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Home</span>
+                                <span class="sidebar-link__note">Entry page and quick actions</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('dashboard.dashboard') }}" class="sidebar-link {% if request.path == url_for('dashboard.dashboard') %}active-page{% endif %}">
+                            <i class="bi bi-speedometer2"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Dashboard</span>
+                                <span class="sidebar-link__note">Metrics, trends, and status</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('calendar.calendar') }}" class="sidebar-link {% if request.path.startswith('/calendar') %}active-page{% endif %}">
+                            <i class="bi bi-calendar3"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Calendar</span>
+                                <span class="sidebar-link__note">Attendance dates and navigation</span>
+                            </span>
+                        </a>
+                    </nav>
+                </section>
+
+                <section class="sidebar-section">
+                    <div class="sidebar-heading">
+                        <span class="sidebar-heading__label">Records</span>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="{{ url_for('students.students') }}" class="sidebar-link {% if request.path.startswith('/students') or request.path.startswith('/student') %}active-page{% endif %}">
+                            <i class="bi bi-people-fill"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Students</span>
+                                <span class="sidebar-link__note">Profiles, imports, and edits</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('attendance.attendance') }}" class="sidebar-link {% if request.path.startswith('/attendance') %}active-page{% endif %}">
+                            <i class="bi bi-clipboard-check-fill"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Attendance</span>
+                                <span class="sidebar-link__note">Mark daily status quickly</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('reports.report') }}" class="sidebar-link {% if request.path.startswith('/report') %}active-page{% endif %}">
+                            <i class="bi bi-bar-chart-fill"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Reports</span>
+                                <span class="sidebar-link__note">Thresholds, export, and progress</span>
+                            </span>
+                        </a>
+                    </nav>
+                </section>
+
+                {% if session.get('role') == 'admin' %}
+                <section class="sidebar-section">
+                    <div class="sidebar-heading">
+                        <span class="sidebar-heading__label">Administration</span>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <a href="{{ url_for('admin.users') }}" class="sidebar-link {% if request.path.startswith('/users') %}active-page{% endif %}">
+                            <i class="bi bi-person-gear"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Users</span>
+                                <span class="sidebar-link__note">Accounts and access lifecycle</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('admin.roles') }}" class="sidebar-link {% if request.path.startswith('/roles') %}active-page{% endif %}">
+                            <i class="bi bi-shield-lock-fill"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Roles</span>
+                                <span class="sidebar-link__note">Permissions and role coverage</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('admin.logs') }}" class="sidebar-link {% if request.path.startswith('/logs') %}active-page{% endif %}">
+                            <i class="bi bi-journal-text"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Logs</span>
+                                <span class="sidebar-link__note">Audit and event history</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('admin.backup_restore') }}" class="sidebar-link {% if request.path.startswith('/backup_restore') %}active-page{% endif %}">
+                            <i class="bi bi-database-fill-lock"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Backup & Restore</span>
+                                <span class="sidebar-link__note">Snapshots and recovery paths</span>
+                            </span>
+                        </a>
+                        <a href="{{ url_for('admin.settings') }}" class="sidebar-link {% if request.path.startswith('/settings') %}active-page{% endif %}">
+                            <i class="bi bi-gear-fill"></i>
+                            <span class="sidebar-link__copy">
+                                <span class="sidebar-link__label">Settings</span>
+                                <span class="sidebar-link__note">System rules and deployment knobs</span>
+                            </span>
+                        </a>
+                    </nav>
+                </section>
+                {% endif %}
+
+                <section class="sidebar-section">
+                    <div class="sidebar-heading">
+                        <span class="sidebar-heading__label">Notifications</span>
+                    </div>
+                    <div class="notification-panel">
+                        {% if notifications %}
+                        <div class="notification-list">
+                            {% for item in notifications %}
+                            <article class="notification-item">
+                                <span class="notification-item__message">{{ item.message }}</span>
+                                <span class="notification-item__time">{{ item.time }}</span>
+                            </article>
+                            {% endfor %}
+                        </div>
+                        <form method="POST" action="{{ url_for('admin.mark_notifications_read') }}" class="inline-form mt-3">
+                            {{ csrf_field()|safe }}
+                            <button type="submit" class="btn btn-ui-utility btn-sm w-100">
+                                <i class="bi bi-check2-all"></i>
+                                <span>Mark all read</span>
+                            </button>
+                        </form>
+                        {% else %}
+                        <p class="text-muted mb-0">No unread notifications right now.</p>
+                        {% endif %}
+                    </div>
+                </section>
+            </div>
+
+            <footer class="sidebar-footer">
+                <a href="{{ url_for('auth.account') }}" class="sidebar-link {% if request.path.startswith('/account') %}active-page{% endif %}">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="sidebar-link__copy">
+                        <span class="sidebar-link__label">Profile</span>
+                        <span class="sidebar-link__note">{{ session.get('user', 'Account') }}</span>
+                    </span>
+                </a>
+                <a href="{{ url_for('auth.preferences') }}" class="sidebar-link {% if request.path.startswith('/preferences') %}active-page{% endif %}">
+                    <i class="bi bi-sliders2"></i>
+                    <span class="sidebar-link__copy">
+                        <span class="sidebar-link__label">Preferences</span>
+                        <span class="sidebar-link__note">Theme, density, and alerts</span>
+                    </span>
+                </a>
+                <form method="POST" action="{{ url_for('auth.toggle_theme') }}" class="theme-toggle-form">
+                    {{ csrf_field()|safe }}
+                    <button type="submit" class="sidebar-button">
+                        <i class="bi {% if active_theme == 'dark' %}bi-sun-fill{% else %}bi-moon-stars-fill{% endif %}"></i>
+                        <span class="sidebar-link__copy">
+                            <span class="sidebar-link__label">{% if active_theme == 'dark' %}Switch to light mode{% else %}Switch to dark mode{% endif %}</span>
+                            <span class="sidebar-link__note">Theme is saved to your account</span>
+                        </span>
+                    </button>
+                </form>
+                <button type="button" class="sidebar-button" data-open-logout>
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span class="sidebar-link__copy">
+                        <span class="sidebar-link__label">Logout</span>
+                        <span class="sidebar-link__note">End the current secure session</span>
+                    </span>
+                </button>
+            </footer>
+        </div>
+    </aside>
+
+    <div class="content-shell">
+        <div class="workspace-topbar">
+            <div class="workspace-topbar__panel">
+                <div class="workspace-topbar__meta">
+                    <span class="workspace-topbar__title">Operations workspace</span>
+                    <span class="workspace-topbar__subtitle">{{ session.get('role', 'teacher')|title }} session for {{ session.get('user', 'User') }}</span>
+                </div>
+                <div class="workspace-topbar__actions">
+                    <div class="position-relative">
+                        <button type="button" class="icon-button" data-notification-toggle aria-expanded="false" aria-controls="notificationMenu" aria-label="Open notifications">
+                            <i class="bi bi-bell"></i>
+                        </button>
+                        <div id="notificationMenu" class="surface-panel position-absolute end-0 mt-2" style="width:min(24rem, calc(100vw - 2rem));" hidden>
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <strong class="panel-title">Unread notifications</strong>
+                                <span class="badge text-bg-secondary">{{ notifications|length }}</span>
+                            </div>
+                            {% if notifications %}
+                            <div class="notification-list">
+                                {% for item in notifications %}
+                                <article class="notification-item">
+                                    <span class="notification-item__message">{{ item.message }}</span>
+                                    <span class="notification-item__time">{{ item.time }}</span>
+                                </article>
+                                {% endfor %}
+                            </div>
+                            <form method="POST" action="{{ url_for('admin.mark_notifications_read') }}" class="inline-form mt-3">
+                                {{ csrf_field()|safe }}
+                                <button type="submit" class="btn btn-ui-utility btn-sm w-100">
+                                    <i class="bi bi-check2-all"></i>
+                                    <span>Mark all read</span>
+                                </button>
+                            </form>
+                            {% else %}
+                            <p class="text-muted mb-0">No unread notifications right now.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <a href="{{ url_for('auth.account') }}" class="btn btn-ui-secondary btn-sm">
+                        <i class="bi bi-person-circle"></i>
+                        <span>{{ session.get('user', 'Account') }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <main id="mainContent" class="app-main" tabindex="-1">
+            <div class="app-main__inner">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    <div class="floating-alert-container" aria-live="polite">
+                        {% for category, message in messages %}
+                            {% set alert_class = 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' %}
+                            <div class="alert alert-{{ alert_class }} alert-dismissible fade show floating-alert" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+
+                <footer class="footer-note">
+                    <p class="mb-0">{{ system_name }} &copy; 2026</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5 mb-0" id="confirmModalTitle"><i id="confirmModalIcon" class="bi bi-question-circle" aria-hidden="true"></i> Confirm action</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalBody" class="mb-0">Are you sure?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ui-secondary" data-bs-dismiss="modal" id="confirmModalCancel">Cancel</button>
+                <button type="button" class="btn btn-ui-primary" id="confirmModalButton">
+                    <i class="bi bi-check-circle" aria-hidden="true"></i>
+                    <span>Confirm</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalTitle" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5 mb-0" id="logoutModalTitle"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Confirm logout</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Sign out of the current session?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ui-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('auth.logout') }}" class="inline-form">
+                    {{ csrf_field()|safe }}
+                    <button type="submit" class="btn btn-ui-danger">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="actionToastContainer" aria-live="polite" aria-atomic="true"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js', v='20260421-ui-refresh') }}"></script>
+</body>
+</html>

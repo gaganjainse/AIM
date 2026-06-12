@@ -1,0 +1,102 @@
+{% extends "auth_base.html" %}
+{% block content %}
+<main class="login-shell">
+    <section class="login-layout">
+        <aside class="login-poster">
+            <div class="login-poster__intro">
+                <div class="login-poster__brand">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="AIM" class="login-poster__logo">
+                    <span class="login-poster__eyebrow">
+                        <span>AIM</span>
+                    </span>
+                </div>
+                <h1 class="login-poster__title">{{ system_name }}</h1>
+                <p class="login-poster__copy">{{ settings.get('login_tagline', 'Track attendance without the clutter') }}</p>
+                <div class="login-poster__stats" aria-label="Platform highlights">
+                    <article class="login-poster__stat">
+                        <strong>Role-aware</strong>
+                        <span>Teacher and admin access stay clearly separated.</span>
+                    </article>
+                    <article class="login-poster__stat">
+                        <strong>Dual theme</strong>
+                        <span>Light and dark mode saved to your account.</span>
+                    </article>
+                    <article class="login-poster__stat">
+                        <strong>Mobile ready</strong>
+                        <span>Fully responsive across all screen sizes.</span>
+                    </article>
+                </div>
+            </div>
+
+            <div class="login-poster__features">
+                <article class="login-poster__feature">
+                    <i class="bi bi-clipboard-data"></i>
+                    <div>
+                        <strong>Attendance, records, and reports in one place</strong>
+                        <span>Move from daily marking to student records and summaries without switching tools.</span>
+                    </div>
+                </article>
+                <article class="login-poster__feature">
+                    <i class="bi bi-shield-check"></i>
+                    <div>
+                        <strong>Secure sessions with scoped permissions</strong>
+                        <span>Admins and teachers share one interface, with role-based access protecting sensitive actions.</span>
+                    </div>
+                </article>
+            </div>
+        </aside>
+
+        <section class="login-card">
+            <div class="login-card__brand">
+                <span class="year-pill mb-3">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>Academic year {{ settings.get('year', settings.get('semester_name', '2026-27')) }}</span>
+                </span>
+                <h2 class="login-card__title">Welcome back</h2>
+                <p class="login-card__subtitle">Sign in to continue to your attendance workspace.</p>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="auth-errors" aria-live="polite">
+                    {% for message in messages %}
+                    <div class="alert alert-danger mb-0">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" novalidate class="login-form">
+                {{ csrf_field()|safe }}
+                <div class="mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input id="username" type="text" name="username" class="form-control" placeholder="Enter username" autocomplete="username" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="passwordField">Password</label>
+                    <div class="input-group">
+                        <input id="passwordField" type="password" name="password" class="form-control" placeholder="Enter password" autocomplete="current-password" required>
+                        <button type="button" class="password-toggle-button" data-password-toggle="passwordField" data-visible="false" aria-label="Show password" aria-pressed="false">
+                            <i class="bi bi-eye-fill password-toggle-icon" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="login-note-grid mb-4">
+                    <span class="auth-note auth-note--pill">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Secure session
+                    </span>
+                    <span class="auth-note auth-note--pill">
+                        <i class="bi bi-palette-fill me-1"></i>Theme restored
+                    </span>
+                </div>
+                <button class="btn btn-ui-primary btn-lg w-100" type="submit">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Sign in</span>
+                </button>
+            </form>
+
+            <p class="auth-footer">{{ system_name }} &copy; 2026</p>
+        </section>
+    </section>
+</main>
+{% endblock %}
