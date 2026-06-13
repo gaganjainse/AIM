@@ -28,6 +28,18 @@ limiter = Limiter(
 )
 
 
+def _init_query_cache() -> None:
+    """Initialize query cache based on configuration."""
+    if Config.CACHE_QUERY_ENABLED:
+        from repositories.db_utils import enable_query_cache
+        enable_query_cache()
+        logging.getLogger(__name__).info("Query caching enabled")
+    else:
+        from repositories.db_utils import disable_query_cache
+        disable_query_cache()
+        logging.getLogger(__name__).info("Query caching disabled")
+
+
 def create_app() -> Flask:
     app = Flask(
         __name__,
