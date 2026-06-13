@@ -87,6 +87,7 @@ class Config:
     CACHE_TYPE = os.getenv("CACHE_TYPE", "SimpleCache")
     CACHE_REDIS_URL = os.getenv("CACHE_REDIS_URL")
     CACHE_DEFAULT_TIMEOUT = _env_int("CACHE_DEFAULT_TIMEOUT", 300)
+    CACHE_QUERY_ENABLED = _env_bool("CACHE_QUERY_ENABLED", True)
 
     # ── CORS ────────────────────────────────────────────────────────────────────
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "").split(",") if os.getenv("CORS_ORIGINS") else []
