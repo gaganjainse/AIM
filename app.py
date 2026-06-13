@@ -18,6 +18,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 from repositories.system_repository import fetch_settings_map, fetch_unread_notifications
 from utils.email import mail
+from utils.exceptions import AIMException
 
 cache = Cache()
 limiter = Limiter(
@@ -288,5 +289,19 @@ def rate_limited(_) -> tuple[str, int]:
     return render_template("429.html"), 429
 
 
+@app.errorhandler(AIMException)
+def handle_aim_exception(e: AIMException) -> tuple[str, int]:
+    """Handle custom AIM exceptions with appropriate error pages."""
+    if e.status_code == 404:
+        return render_template("404.html", error=e.message), 404
+    if e.status_code == 401:
+        return render_template("401.html", error=e.message), 401
+    if e.status_code == 403:
+        return render_template("403.html", error=e.message), 403
+    if e.status_code == 429:
+        return render_template("429.html", error=e.message), 429
+    return render_template("500.html", error=e.message), 500
+
 if __name__ == "__main__":
-    app.run(debug=getattr(Config, "DEBUG", False), use_reloader=False, host="0.0.0.0")
+    host = os.getenv("FLASK_RUN_HOST", "127.0.0.1") if not Config.DEBUG else os.getenv("FLASK_RUN_HOST", "0.0.0.0")
+    app.run(debug=Config.DEBUG, use_reloader=False, host=host)

@@ -66,6 +66,7 @@ class Config:
     MYSQL_BIN = os.getenv("MYSQL_BIN", "mysql")
     MYSQLDUMP_BIN = os.getenv("MYSQLDUMP_BIN", "mysqldump")
     DEBUG = _env_bool("FLASK_DEBUG", False)
+    FLASK_RUN_HOST = os.getenv("FLASK_RUN_HOST", "127.0.0.1")
 
     MAIL_SERVER = os.getenv("EMAIL_SMTP_SERVER", "smtp.gmail.com")
     MAIL_PORT = _env_int("EMAIL_SMTP_PORT", 587)
