@@ -40,6 +40,7 @@ from repositories.system_repository import clear_settings_cache
 from utils.notifications import create_notification, ensure_user_notification_settings
 from repositories.db_utils import db_cursor
 from utils.logger import log_action
+from utils.crypto import compute_checksum, encrypt_backup, decrypt_backup, verify_checksum
 
 logger = logging.getLogger(__name__)
 
