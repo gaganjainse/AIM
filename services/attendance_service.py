@@ -77,7 +77,7 @@ def attendance_page():
         )
         flash(f'Attendance saved for {selected_date}')
 
-    students = list_students()
+    students_total, students = list_students(page=1, per_page=50)  # Paginated to avoid N+1
     attendance_dict = get_attendance_for_date(selected_date)
     selected_date_obj = date.fromisoformat(selected_date)
     can_edit_selected_date = session.get('role') == 'admin' or (teacher_start <= selected_date_obj <= teacher_end)
