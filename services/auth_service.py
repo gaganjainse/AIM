@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
@@ -27,13 +28,28 @@ from repositories.auth_repository import (
     upsert_notification_settings,
 )
 from repositories.system_repository import get_setting
-from routes.permissions import ROLE_DEFAULT_PERMISSIONS, teacher_calendar_policy_label, teacher_policy_range_text
 from utils.notifications import create_notification
 
 logger = logging.getLogger(__name__)
 
+# ── Validation Constants ────────────────────────────────────────────────
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,50}$")
 NAME_RE = re.compile(r"^[A-Za-z][A-Za-z\s'.-]{0,49}$")
+
+
+@dataclass(frozen=True)
+class ValidationResult:
+    """Result of a validation operation."""
+    is_valid: bool
+    error_message: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class LoginResult:
+    """Result of a login attempt."""
+    success: bool
+    user_id: Optional[int] = None
+    error_message: Optional[str] = None
 
 # ── Argon2id Password Hasher ────────────────────────────────────────────────
 from argon2 import PasswordHasher as _Argon2Hasher
@@ -62,20 +78,37 @@ def _verify_password(stored_hash: str, provided: str) -> bool:
     return werkzeug_check(stored_hash, provided)
 
 
-def password_policy_error(password: str) -> str | None:
+def validate_password(password: str) -> ValidationResult:
+    """Validate password against policy requirements.
+    
+    Returns:
+        ValidationResult with is_valid=True if password meets requirements,
+        otherwise is_valid=False with error_message describing the issue.
+    """
     if len(password or "") < 8:
-        return "Password must be at least 8 characters long."
+        return ValidationResult(is_valid=False, error_message="Password must be at least 8 characters long.")
     if not any(ch.isdigit() for ch in password):
-        return "Password must contain at least one number."
+        return ValidationResult(is_valid=False, error_message="Password must contain at least one number.")
     if not any(ch.isupper() for ch in password):
-        return "Password must contain at least one uppercase letter."
+        return ValidationResult(is_valid=False, error_message="Password must contain at least one uppercase letter.")
     if not any(ch.islower() for ch in password):
-        return "Password must contain at least one lowercase letter."
+        return ValidationResult(is_valid=False, error_message="Password must contain at least one lowercase letter.")
+    
     # Check against breached password database
     from utils.crypto import is_password_breached
     if is_password_breached(password):
-        return "This password has been found in a data breach. Please choose a different password."
-    return None
+        return ValidationResult(
+            is_valid=False, 
+            error_message="This password has been found in a data breach. Please choose a different password."
+        )
+    
+    return ValidationResult(is_valid=True)
+
+
+def password_policy_error(password: str) -> str | None:
+    """Legacy function - use validate_password() instead."""
+    result = validate_password(password)
+    return result.error_message
 
 
 def valid_username(username: str) -> bool:
@@ -205,6 +238,8 @@ def toggle_theme() -> str:
 
 
 def account_page() -> str:
+    from routes.permissions import ROLE_DEFAULT_PERMISSIONS, teacher_calendar_policy_label, teacher_policy_range_text
+    
     user = get_account_profile(int(session["user_id"]))
     if not user:
         flash("Account not found.")
@@ -268,9 +303,9 @@ def change_password() -> str:
     current_password = request.form.get("current_password", "")
     new_password = request.form.get("new_password", "")
 
-    policy_error = password_policy_error(new_password)
-    if policy_error:
-        flash(policy_error)
+    validation_result = validate_password(new_password)
+    if not validation_result.is_valid:
+        flash(validation_result.error_message)
         return redirect(url_for("auth.change_password"))
 
     password_hash = get_password_hash(int(session["user_id"]))
@@ -325,19 +360,44 @@ def update_account_preferences() -> str:
     return redirect(url_for("auth.preferences"))
 
 
+@dataclass(frozen=True)
+class NotificationSettings:
+    """User notification settings."""
+    low_attendance: bool
+    password_change: bool
+    new_student: bool
+    attendance_saved: bool
+    system_alerts: bool
+    login_alerts: bool
+    attendance_updates: bool
+    role_changes: bool
+    account_locked: bool
+    backup_completed: bool
+    
+    @classmethod
+    def from_form(cls, form) -> 'NotificationSettings':
+        """Create notification settings from form data."""
+        return cls(
+            low_attendance=form.get("low_attendance") == "1",
+            password_change=form.get("password_change") == "1",
+            new_student=form.get("new_student") == "1",
+            attendance_saved=form.get("attendance_saved") == "1",
+            system_alerts=form.get("system_alerts") == "1",
+            login_alerts=form.get("login_alerts") == "1",
+            attendance_updates=form.get("attendance_updates") == "1",
+            role_changes=form.get("role_changes") == "1",
+            account_locked=form.get("account_locked") == "1",
+            backup_completed=form.get("backup_completed") == "1",
+        )
+    
+    def to_dict(self) -> dict[str, bool]:
+        """Convert to dictionary for repository layer."""
+        from dataclasses import asdict
+        return asdict(self)
+
+
 def update_notification_preferences() -> str:
-    toggles = {
-        "low_attendance": request.form.get("low_attendance") == "1",
-        "password_change": request.form.get("password_change") == "1",
-        "new_student": request.form.get("new_student") == "1",
-        "attendance_saved": request.form.get("attendance_saved") == "1",
-        "system_alerts": request.form.get("system_alerts") == "1",
-        "login_alerts": request.form.get("login_alerts") == "1",
-        "attendance_updates": request.form.get("attendance_updates") == "1",
-        "role_changes": request.form.get("role_changes") == "1",
-        "account_locked": request.form.get("account_locked") == "1",
-        "backup_completed": request.form.get("backup_completed") == "1",
-    }
+    toggles = NotificationSettings.from_form(request.form).to_dict()
     upsert_notification_settings(int(session["user_id"]), toggles, request.remote_addr)
     create_notification(
         int(session["user_id"]),
