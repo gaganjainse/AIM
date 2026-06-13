@@ -285,14 +285,12 @@ def restore_database_page() -> str:
         flash("Restore aborted because the safety snapshot could not be created.")
         return redirect(url_for("admin.backup_restore"))
 
-    env = os.environ.copy()
-    env["MYSQL_PWD"] = Config.DB_PASSWORD
+    # Use --password option instead of MYSQL_PWD environment variable to avoid leaking password in process environment
     mysql_bin = _resolve_mysql_bin("MYSQL_BIN")
     with open(restore_path, "rb") as infile:
         result = subprocess.run(
-            [mysql_bin, "-u", Config.DB_USER, Config.DB_NAME],
-            stdin=infile, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            env=env, check=False,
+            [mysql_bin, "-u", Config.DB_USER, f"--password={Config.DB_PASSWORD}", Config.DB_NAME],
+            stdin=infile, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
         )
 
     if result.returncode != 0:
@@ -430,13 +428,12 @@ def _create_backup_file(prefix: str = "backup") -> tuple[str, str, bool]:
     os.makedirs(Config.BACKUP_DIR, exist_ok=True)
     filename = f"{prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
     filepath = os.path.join(Config.BACKUP_DIR, filename)
-    env = os.environ.copy()
-    env["MYSQL_PWD"] = Config.DB_PASSWORD
+    # Use --password option instead of MYSQL_PWD environment variable to avoid leaking password in process environment
     mysqldump_bin = _resolve_mysql_bin("MYSQLDUMP_BIN")
     with open(filepath, "w", encoding="utf-8") as outfile:
         result = subprocess.run(
-            [mysqldump_bin, "-u", Config.DB_USER, Config.DB_NAME],
-            stdout=outfile, stderr=subprocess.DEVNULL, env=env, check=False,
+            [mysqldump_bin, "-u", Config.DB_USER, f"--password={Config.DB_PASSWORD}", Config.DB_NAME],
+            stdout=outfile, stderr=subprocess.DEVNULL, check=False,
         )
     return filename, filepath, result.returncode == 0
 

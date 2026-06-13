@@ -20,6 +20,15 @@ def _required_env(name: str) -> str:
     return value
 
 
+def _validate_not_default(value: str, name: str, defaults: list[str]) -> None:
+    """Validate that a configuration value is not set to a known default/weak value."""
+    if value.lower() in [d.lower() for d in defaults]:
+        raise RuntimeError(
+            f"SECURITY: {name} is set to a default/weak value. "
+            f"Please change it to a strong, random value before running in production."
+        )
+
+
 def _env_bool(name: str, default: bool = False) -> bool:
     value = os.getenv(name)
     if value is None:
@@ -45,11 +54,13 @@ class Config:
     BACKUP_DIR = os.path.join(BASE_DIR, "backups")
 
     SECRET_KEY = _required_env("FLASK_SECRET")
+    _validate_not_default(SECRET_KEY, "FLASK_SECRET", ["change-me", "change-me-to-a-random-64-char-string", "dev", "secret"])
 
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = _env_int("DB_PORT", 3306)
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = _required_env("DB_PASSWORD")
+    _validate_not_default(DB_PASSWORD, "DB_PASSWORD", ["change-me", "password", "admin", "root"])
     DB_NAME = os.getenv("DB_NAME", "attendance_db")
     DB_POOL_SIZE = _env_int("DB_POOL_SIZE", 5)
     MYSQL_BIN = os.getenv("MYSQL_BIN", "mysql")
@@ -75,7 +86,7 @@ class Config:
     SESSION_PERMANENT = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = os.getenv("SESSION_COOKIE_SAMESITE", "Lax")
-    SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", False)
+    SESSION_COOKIE_SECURE = _env_bool("SESSION_COOKIE_SECURE", True)  # Changed default to True for security
     JSON_SORT_KEYS = False
 
     # ── Rate Limiting ──────────────────────────────────────────────────────────
