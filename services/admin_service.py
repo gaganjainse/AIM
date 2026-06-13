@@ -7,6 +7,7 @@ import re
 import secrets
 import shutil
 import subprocess
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
@@ -36,13 +37,44 @@ from repositories.admin_repository import (
     username_exists,
 )
 from repositories.system_repository import clear_settings_cache
-from routes.auth import password_policy_error, valid_username
-from utils.crypto import encrypt_backup, decrypt_backup, compute_checksum, verify_checksum
 from utils.notifications import create_notification, ensure_user_notification_settings
 from repositories.db_utils import db_cursor
 from utils.logger import log_action
+from utils.crypto import compute_checksum, encrypt_backup, decrypt_backup, verify_checksum
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class UserCreationResult:
+    """Result of user creation attempt."""
+    success: bool
+    user_id: Optional[int] = None
+    error_message: Optional[str] = None
+
+
+def _validate_username(username: str) -> tuple[bool, Optional[str]]:
+    """Validate username format.
+    
+    Returns:
+        Tuple of (is_valid, error_message). If valid, error_message is None.
+    """
+    if not re.fullmatch(r"^[A-Za-z0-9_.-]{3,50}$", username or ""):
+        return False, "Username must be 3-50 characters and can contain letters, numbers, underscore, dot, or dash."
+    return True, None
+
+
+def _validate_password(password: str) -> tuple[bool, Optional[str]]:
+    """Validate password against policy.
+    
+    Returns:
+        Tuple of (is_valid, error_message). If valid, error_message is None.
+    """
+    from routes.auth import password_policy_error
+    error = password_policy_error(password)
+    if error:
+        return False, error
+    return True, None
 
 
 def _hash_password(password: str) -> str:
@@ -56,18 +88,21 @@ def users_page() -> str:
 
 
 def add_user() -> str:
+    from routes.auth import valid_username
+    
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
     email = request.form.get("email", "").strip() or None
     role_id_raw = request.form.get("role_id", "").strip()
 
-    if not valid_username(username):
-        flash("Username must be 3-50 characters and can contain letters, numbers, underscore, dot, or dash.")
+    is_valid, error_msg = _validate_username(username)
+    if not is_valid:
+        flash(error_msg)
         return redirect(url_for("admin.users"))
 
-    policy_error = password_policy_error(password)
-    if policy_error:
-        flash(policy_error)
+    is_valid, error_msg = _validate_password(password)
+    if not is_valid:
+        flash(error_msg)
         return redirect(url_for("admin.users"))
 
     try:
