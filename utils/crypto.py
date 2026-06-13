@@ -64,14 +64,21 @@ def verify_checksum(filepath: str, expected: str) -> bool:
 def is_password_breached(password: str) -> bool:
     """Check password against HaveIBeenPwned k-anonymity API.
     Returns True if password is found in breach database.
+    
+    Note: SHA-1 is used here as required by the HIBP API specification
+    for k-anonymity. The password hash prefix is sent over HTTPS, not
+    the plaintext password.
     """
     import urllib.request
     import urllib.error
     try:
+        # nosec B324 - SHA-1 required by HaveIBeenPwned k-anonymity API specification
         sha1 = hashlib.sha1(password.encode("utf-8")).hexdigest().upper()
         prefix, suffix = sha1[:5], sha1[5:]
         url = f"https://api.pwnedpasswords.com/range/{prefix}"
+        # URL is hardcoded with https:// scheme, safe from path traversal
         req = urllib.request.Request(url, headers={"User-Agent": "AIM-System/1.0"})
+        # nosec B310 - URL uses hardcoded HTTPS scheme only
         with urllib.request.urlopen(req, timeout=5) as resp:
             body = resp.read().decode("utf-8")
         for line in body.splitlines():
