@@ -129,9 +129,7 @@ def add_student():
         return redirect(url_for('students.students'))
 
     create_student(roll, first_name, last_name)
-    from repositories.db_utils import db_cursor
-    with db_cursor(dictionary=False) as (_, cursor):
-        log_action(f'Added student {roll}', user_id=session['user_id'], ip_address=request.remote_addr, target_table='students')
+    log_action(f'Added student {roll}', user_id=session['user_id'], ip_address=request.remote_addr, target_table='students')
     create_notification(
         session['user_id'],
         f'New student {roll} added',
@@ -158,9 +156,7 @@ def update_student_page(student_id: int):
         return redirect(url_for('students.students'))
 
     update_student(student_id, roll, first_name, last_name)
-    from repositories.db_utils import db_cursor
-    with db_cursor(dictionary=False) as (_, cursor):
-        log_action(f'Updated student {roll}', user_id=session['user_id'], ip_address=request.remote_addr, target_table='students', target_id=student_id)
+    log_action(f'Updated student {roll}', user_id=session['user_id'], ip_address=request.remote_addr, target_table='students', target_id=student_id)
     flash('Student updated successfully')
     return redirect(url_for('students.students'))
 
@@ -176,9 +172,7 @@ def delete_student_page(student_id: int):
         flash('Student not found.')
         return redirect(url_for('students.students'))
     delete_student(student_id)
-    from repositories.db_utils import db_cursor
-    with db_cursor(dictionary=False) as (_, cursor):
-        log_action(f'Deleted student {student["roll"]}', user_id=session['user_id'], ip_address=request.remote_addr, target_table='students', target_id=student_id)
+    log_action(f'Deleted student {student["roll"]}', user_id=session['user_id'], ip_address=request.remote_addr, target_table='students', target_id=student_id)
     flash('Student deleted successfully')
     return redirect(url_for('students.students'))
 
