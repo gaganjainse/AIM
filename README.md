@@ -1,4 +1,4 @@
-# AIM — AIM
+# AIM — Attendance Information Manager
 
 A full-stack web application for managing student attendance, built with Flask and MySQL. Supports dual roles (teacher and admin), light/dark themes, CSV imports, reports, a live dashboard with Chart.js visualisations, and a production-hardened security stack.
 
