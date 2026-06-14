@@ -4,9 +4,10 @@ from functools import lru_cache
 
 from repositories.db_utils import db_cursor, fetch_all, fetch_one
 from utils.logger import log_action, log_action_on_cursor
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def find_user_for_login(username: str):
+def find_user_for_login(username: str) -> Optional[Dict[str, Any]]:
     return fetch_one(
         """
         SELECT u.id, u.username, u.password, u.email, u.email_notifications,
@@ -22,12 +23,12 @@ def find_user_for_login(username: str):
 
 
 @lru_cache(maxsize=4096)
-def get_session_token(user_id: int):
+def get_session_token(user_id: int) -> Optional[Dict[str, Any]]:
     row = fetch_one("SELECT session_token FROM users WHERE id=%s", (user_id,))
     return row["session_token"] if row else None
 
 
-def set_login_success(user_id: int, new_ip: str, token: str):
+def set_login_success(user_id: int, new_ip: str, token: str) -> Any:
     with db_cursor(dictionary=False) as (conn, cursor):
         cursor.execute(
             """
@@ -45,12 +46,12 @@ def set_login_success(user_id: int, new_ip: str, token: str):
     get_session_token.cache_clear()
 
 
-def increment_failed_attempts(user_id: int, attempts: int):
+def increment_failed_attempts(user_id: int, attempts: int) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE users SET failed_login_attempts = %s WHERE id = %s", (attempts, user_id))
 
 
-def lock_account(user_id: int, attempts: int, lock_minutes: int):
+def lock_account(user_id: int, attempts: int, lock_minutes: int) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute(
             """
@@ -63,7 +64,7 @@ def lock_account(user_id: int, attempts: int, lock_minutes: int):
         )
 
 
-def clear_session_token(user_id: int, ip_address: str | None = None, action: str | None = None):
+def clear_session_token(user_id: int, ip_address: str | None = None, action: str | None = None) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE users SET session_token = NULL WHERE id = %s", (user_id,))
         if action:
@@ -71,14 +72,14 @@ def clear_session_token(user_id: int, ip_address: str | None = None, action: str
     get_session_token.cache_clear()
 
 
-def update_theme(user_id: int, theme: str, ip_address: str | None = None):
+def update_theme(user_id: int, theme: str, ip_address: str | None = None) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE users SET theme=%s WHERE id=%s", (theme, user_id))
         if ip_address:
             log_action_on_cursor(cursor, "Changed theme", user_id=user_id, ip_address=ip_address, target_table="users", target_id=user_id)
 
 
-def get_account_profile(user_id: int):
+def get_account_profile(user_id: int) -> Optional[Dict[str, Any]]:
     return fetch_one(
         """
         SELECT
@@ -111,7 +112,7 @@ def get_account_profile(user_id: int):
     )
 
 
-def get_login_activity(user_id: int, limit: int = 5):
+def get_login_activity(user_id: int, limit: int = 5) -> Optional[Dict[str, Any]]:
     return fetch_all(
         """
         SELECT action, ip_address, time
@@ -125,7 +126,7 @@ def get_login_activity(user_id: int, limit: int = 5):
     )
 
 
-def get_permissions(user_id: int):
+def get_permissions(user_id: int) -> Optional[Dict[str, Any]]:
     rows = fetch_all(
         """
         SELECT DISTINCT p.permission_name AS name
@@ -140,19 +141,19 @@ def get_permissions(user_id: int):
     return [row["name"] for row in rows]
 
 
-def update_password(user_id: int, password_hash: str, ip_address: str | None = None):
+def update_password(user_id: int, password_hash: str, ip_address: str | None = None) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE users SET password=%s WHERE id=%s", (password_hash, user_id))
         if ip_address:
             log_action_on_cursor(cursor, "Changed password", user_id=user_id, ip_address=ip_address, target_table="users", target_id=user_id)
 
 
-def get_password_hash(user_id: int):
+def get_password_hash(user_id: int) -> Optional[Dict[str, Any]]:
     row = fetch_one("SELECT password FROM users WHERE id=%s", (user_id,))
     return row["password"] if row else None
 
 
-def update_preferences(user_id: int, theme: str, records_per_page: int, email: str | None, email_notifications: int, ip_address: str | None = None):
+def update_preferences(user_id: int, theme: str, records_per_page: int, email: str | None, email_notifications: int, ip_address: str | None = None) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute(
             """
@@ -169,7 +170,7 @@ def update_preferences(user_id: int, theme: str, records_per_page: int, email: s
             log_action_on_cursor(cursor, "Updated account preferences", user_id=user_id, ip_address=ip_address, target_table="users", target_id=user_id)
 
 
-def upsert_notification_settings(user_id: int, toggles: dict[str, bool], ip_address: str | None = None):
+def upsert_notification_settings(user_id: int, toggles: dict[str, bool], ip_address: str | None = None) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute(
             """

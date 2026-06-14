@@ -114,7 +114,7 @@ def has_permission(permission_name: str) -> bool:
 def permission_required(permission: str) -> Callable:
     def decorator(f: Callable) -> Callable:
         @wraps(f)
-        def decorated_function(*args, **kwargs):
+        def decorated_function(*args, **kwargs) -> Any:
             if not has_permission(permission):
                 abort(403)
             return f(*args, **kwargs)

@@ -6,9 +6,10 @@ from flask import jsonify, render_template, session
 
 from repositories.calendar_repository import attendance_events
 from routes.permissions import teacher_calendar_policy_label, teacher_calendar_scope_label, teacher_edit_window
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def calendar_page():
+def calendar_page() -> Any:
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
     week_end = week_start + timedelta(days=6)
@@ -26,7 +27,7 @@ def calendar_page():
     )
 
 
-def attendance_events_json():
+def attendance_events_json() -> Any:
     records = attendance_events()
     events = []
     for r in records:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from repositories.db_utils import db_cursor, fetch_all, fetch_one
 from utils.logger import log_action
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
 def get_attendance_threshold(default: float = 75.0) -> float:
@@ -12,7 +13,7 @@ def get_attendance_threshold(default: float = 75.0) -> float:
         return default
 
 
-def all_student_attendance_summary():
+def all_student_attendance_summary() -> List[Dict[str, Any]]:
     return fetch_all(
         """
         SELECT s.roll, s.first_name, s.last_name,
@@ -28,7 +29,7 @@ def all_student_attendance_summary():
     )
 
 
-def low_attendance_exists(user_id: int, message: str):
+def low_attendance_exists(user_id: int, message: str) -> Any:
     return fetch_one(
         """
         SELECT 1 FROM notifications
@@ -39,6 +40,6 @@ def low_attendance_exists(user_id: int, message: str):
     ) is not None
 
 
-def export_log(user_id: int, ip_address: str):
+def export_log(user_id: int, ip_address: str) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         log_action("Exported attendance report", user_id=user_id, ip_address=ip_address, target_table="attendance", target_id=None)

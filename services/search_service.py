@@ -3,13 +3,14 @@ from __future__ import annotations
 from flask import render_template, request, session
 
 from repositories.db_utils import fetch_all
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
 def _like(value: str) -> str:
     return f"%{value}%"
 
 
-def search_page():
+def search_page() -> Any:
     q = request.args.get("q", "").strip()
     if not q:
         return render_template("search_results.html", q=q, students=[], users=[], logs=[], attendance=[])

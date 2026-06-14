@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from repositories.db_utils import db_cursor, fetch_all, fetch_one
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
 def get_records_per_page_setting(default: int = 10) -> int:
@@ -11,7 +12,7 @@ def get_records_per_page_setting(default: int = 10) -> int:
         return default
 
 
-def list_students(page: int, per_page: int, query: str | None = None):
+def list_students(page: int, per_page: int, query: str | None = None) -> List[Dict[str, Any]]:
     offset = (page - 1) * per_page
     if query:
         like = f"%{query}%"
@@ -47,31 +48,31 @@ def student_exists_by_roll(roll: str, exclude_id: int | None = None) -> bool:
     return row is not None
 
 
-def create_student(roll: str, first_name: str, last_name: str):
+def create_student(roll: str, first_name: str, last_name: str) -> int:
     with db_cursor(dictionary=False) as (conn, cursor):
         cursor.execute("INSERT INTO students (roll, first_name, last_name) VALUES (%s, %s, %s)", (roll, first_name, last_name))
         return cursor.lastrowid
 
 
-def update_student(student_id: int, roll: str, first_name: str, last_name: str):
+def update_student(student_id: int, roll: str, first_name: str, last_name: str) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE students SET roll=%s, first_name=%s, last_name=%s WHERE id=%s", (roll, first_name, last_name, student_id))
 
 
-def delete_student(student_id: int):
+def delete_student(student_id: int) -> bool:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("DELETE FROM students WHERE id=%s", (student_id,))
 
 
-def get_student(student_id: int):
+def get_student(student_id: int) -> Optional[Dict[str, Any]]:
     return fetch_one("SELECT * FROM students WHERE id=%s", (student_id,))
 
 
-def get_student_name(student_id: int):
+def get_student_name(student_id: int) -> Optional[Dict[str, Any]]:
     return fetch_one("SELECT roll, first_name, last_name FROM students WHERE id=%s", (student_id,))
 
 
-def get_student_profile_stats(student_id: int):
+def get_student_profile_stats(student_id: int) -> Optional[Dict[str, Any]]:
     return fetch_all(
         """
         SELECT status, COUNT(*) AS count
@@ -83,7 +84,7 @@ def get_student_profile_stats(student_id: int):
     )
 
 
-def get_student_attendance_records(student_id: int):
+def get_student_attendance_records(student_id: int) -> Optional[Dict[str, Any]]:
     return fetch_all(
         """
         SELECT date, status
@@ -96,5 +97,5 @@ def get_student_attendance_records(student_id: int):
 
 
 
-def get_student_by_roll(roll: str):
+def get_student_by_roll(roll: str) -> Optional[Dict[str, Any]]:
     return fetch_one("SELECT id, roll, first_name, last_name FROM students WHERE roll=%s LIMIT 1", (roll,))

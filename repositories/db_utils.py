@@ -29,7 +29,7 @@ def clear_query_cache() -> None:
 
 
 @contextmanager
-def db_cursor(dictionary: bool = True, use_cache: bool = False):
+def db_cursor(dictionary: bool = True, use_cache: bool = False) -> Any:
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=dictionary)
     try:

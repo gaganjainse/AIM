@@ -28,7 +28,7 @@ auth_bp = Blueprint("auth", __name__)
 
 def login_required(f: Callable) -> Callable:
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def decorated_function(*args, **kwargs) -> Any:
         if not login_required_session_check():
             return redirect(url_for("auth.login"))
         return f(*args, **kwargs)

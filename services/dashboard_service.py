@@ -17,9 +17,10 @@ from repositories.dashboard_repository import (
     total_students,
 )
 from utils.notifications import create_notification
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def dashboard_page():
+def dashboard_page() -> Any:
     today = date.today()
     summary = today_summary(today)
     present = summary["present"]
