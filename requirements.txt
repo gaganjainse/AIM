@@ -20,3 +20,5 @@ flake8>=7.0.0
 mypy>=1.8.0
 pytest>=8.0.0
 pytest-cov>=4.1.0
+flasgger>=0.9.7
+weasyprint>=69.0

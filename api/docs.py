@@ -1,9 +1,9 @@
 """API documentation configuration for AIM using Swagger/OpenAPI."""
 from __future__ import annotations
 
-from flasgger import Swagger
+from typing import Any, Dict
 
-SWAGGER_TEMPLATE = {
+SWAGGER_TEMPLATE: Dict[str, Any] = {
     "swagger": "2.0",
     "info": {
         "title": "AIM — Attendance Information Manager API",
@@ -18,7 +18,7 @@ SWAGGER_TEMPLATE = {
     },
 }
 
-SWAGGER_CONFIG = {
+SWAGGER_CONFIG: Dict[str, Any] = {
     "headers": [],
     "specs": [
         {
@@ -34,6 +34,15 @@ SWAGGER_CONFIG = {
 }
 
 
-def init_swagger(app) -> None:
-    """Initialize Swagger documentation for the Flask app."""
-    Swagger(app, template=SWAGGER_TEMPLATE, config=SWAGGER_CONFIG)
+def init_swagger(app: Any) -> None:
+    """Initialize Swagger documentation for the Flask app.
+    
+    Flasgger is an optional dependency. If not installed, Swagger docs
+    will be disabled but the application will still function normally.
+    """
+    try:
+        from flasgger import Swagger
+        Swagger(app, template=SWAGGER_TEMPLATE, config=SWAGGER_CONFIG)
+    except ImportError:
+        # Flasgger not installed - Swagger docs unavailable
+        pass
