@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 from flask import Blueprint, current_app, jsonify, redirect, request, session, url_for
 
