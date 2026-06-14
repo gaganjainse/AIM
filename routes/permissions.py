@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 from flask import abort, session
 

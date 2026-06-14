@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import Callable
+from typing import Any, Callable
 
 from flask import abort, redirect, session, url_for
 
