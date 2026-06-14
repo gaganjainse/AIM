@@ -299,6 +299,7 @@
             </div>
         </div>
 
+        <div id="breadcrumbNav" class="breadcrumb-wrapper px-3 pt-2"></div>
         <main id="mainContent" class="app-main" tabindex="-1">
             <div class="app-main__inner">
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -376,5 +377,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script src="{{ url_for('static', filename='js/app.js', v='20260421-ui-refresh') }}"></script>
+    <script src="{{ url_for('static', filename='js/app_enhancements.js', v='20260614') }}"></script>
 </body>
 </html>
