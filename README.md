@@ -39,7 +39,7 @@ The project was also a deliberate exercise in writing maintainable Flask: a laye
 | **Security** | ✅ 100/100 | CSP, HSTS, rate limiting, Argon2id, breach detection, CORS, secure headers, production validation |
 | **Code Quality** | ✅ 100/100 | Type hints, layered architecture, consistent patterns, bandit/flake8/safety in CI |
 | **Performance** | ✅ 100/100 | Connection pooling, DB indexes, Flask-Caching, Prometheus metrics |
-| **Testing** | ✅ 100/100 | 84 tests across 7 files, 40%+ coverage, CI-integrated |
+| **Testing** | ✅ 100/100 | 101 tests across 8 files (7 unit + 1 integration), 40%+ coverage, CI-integrated |
 | **Accessibility** | ✅ 100/100 | ARIA live regions, modal ARIA, error recovery pages, focus management |
 | **DevOps** | ✅ 100/100 | Docker multi-stage, GitHub Actions CI/CD, structured logging, encrypted backups |
 
@@ -175,10 +175,10 @@ AIM/
 ├── .env.example
 │
 ├── routes/                 # Flask blueprints — URL handlers only
-├── services/               # Business logic layer
+├── services/               # Business logic layer (cache, pdf, dashboard, etc.)
 ├── repositories/           # SQL / database access
 ├── models/                 # Data classes
-├── api/                    # JSON API endpoints (/api/*)
+├── api/                    # JSON API endpoints (/api/*), Swagger docs
 ├── utils/                  # Email, logging, crypto, decorators, notifications
 │
 ├── templates/              # Jinja2 HTML templates (24 files)
@@ -188,7 +188,7 @@ AIM/
 ├── deploy/                 # Host Nginx, Docker Nginx, Gunicorn, systemd configs
 ├── docs/                   # Deployment guide
 ├── screenshots/            # UI screenshots for README / portfolio
-├── tests/                  # Pytest test suite (84 tests, 7 files)
+├── tests/                  # Pytest test suite (101 tests, 8 files)
 │
 └── demo/                   # Demo data seed script + sample data
 ```
@@ -207,7 +207,7 @@ With coverage:
 python -m pytest tests/ -v --cov=. --cov-report=term-missing
 ```
 
-**Current test count: 84 tests across 7 files, all passing.**
+**Current test count: 101 tests across 8 files (7 unit + 1 integration), all passing.**
 
 ---
 
@@ -242,7 +242,7 @@ sudo nginx -s reload
 - Configured a production Docker Compose stack with MySQL healthcheck
 - Wrote Gunicorn configuration tuned for a sync-worker Flask app
 - Achieved WCAG 2.1 AA accessibility compliance
-- Built a comprehensive test suite (84 tests) with CI/CD integration
+- Built a comprehensive test suite (101 tests) with CI/CD integration
 
 ---
 
