@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from repositories.db_utils import db_cursor, fetch_all, fetch_one
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def list_students():
+def list_students() -> List[Dict[str, Any]]:
     return fetch_all("SELECT * FROM students ORDER BY roll")
 
 
-def get_attendance_for_date(attendance_date: str):
+def get_attendance_for_date(attendance_date: str) -> Optional[Dict[str, Any]]:
     rows = fetch_all(
         """
         SELECT student_id, status
@@ -19,7 +20,7 @@ def get_attendance_for_date(attendance_date: str):
     return {row["student_id"]: row["status"] for row in rows}
 
 
-def save_attendance(student_id: int, attendance_date: str, status: str):
+def save_attendance(student_id: int, attendance_date: str, status: str) -> int:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute(
             """
@@ -31,7 +32,7 @@ def save_attendance(student_id: int, attendance_date: str, status: str):
         )
 
 
-def daily_totals(attendance_date):
+def daily_totals(attendance_date) -> Any:
     return fetch_one(
         """
         SELECT
@@ -45,12 +46,12 @@ def daily_totals(attendance_date):
     ) or {}
 
 
-def attendance_count_for_date(attendance_date):
+def attendance_count_for_date(attendance_date) -> Any:
     row = fetch_one("SELECT COUNT(*) AS count FROM attendance WHERE date=%s", (attendance_date,))
     return row["count"] if row else 0
 
 
-def attendance_exists_notification(user_id: int, message: str, attendance_date):
+def attendance_exists_notification(user_id: int, message: str, attendance_date) -> Any:
     return fetch_one(
         """
         SELECT 1 FROM notifications
@@ -61,7 +62,7 @@ def attendance_exists_notification(user_id: int, message: str, attendance_date):
     ) is not None
 
 
-def monthly_averages_for_year():
+def monthly_averages_for_year() -> Any:
     return fetch_all(
         """
         SELECT MONTH(date) AS month,
@@ -75,7 +76,7 @@ def monthly_averages_for_year():
     )
 
 
-def recent_attendance(limit: int = 5):
+def recent_attendance(limit: int = 5) -> Any:
     return fetch_all(
         """
         SELECT s.first_name, s.last_name, a.status, a.date
@@ -88,7 +89,7 @@ def recent_attendance(limit: int = 5):
     )
 
 
-def students_by_status_for_date(attendance_date, status: str):
+def students_by_status_for_date(attendance_date, status: str) -> Any:
     return fetch_all(
         """
         SELECT s.id, s.roll, s.first_name, s.last_name
@@ -101,7 +102,7 @@ def students_by_status_for_date(attendance_date, status: str):
     )
 
 
-def attendance_events():
+def attendance_events() -> Any:
     return fetch_all(
         """
         SELECT date,
@@ -116,7 +117,7 @@ def attendance_events():
 
 
 
-def get_student_id_by_roll(roll: str):
+def get_student_id_by_roll(roll: str) -> Optional[Dict[str, Any]]:
     row = fetch_one("SELECT id FROM students WHERE roll=%s LIMIT 1", (roll,))
     return row["id"] if row else None
 

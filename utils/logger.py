@@ -6,7 +6,7 @@ from typing import Any
 from repositories.db_utils import db_cursor
 
 
-def _get_log_connection():
+def _get_log_connection() -> Any:
     """Get a separate database connection for logging (won't interfere with main transaction)."""
     from database.db import get_db_connection
     return get_db_connection()

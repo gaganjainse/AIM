@@ -4,9 +4,10 @@ from flask import Response, render_template, request, session
 
 from repositories.report_repository import all_student_attendance_summary, get_attendance_threshold, low_attendance_exists, export_log
 from utils.notifications import create_notification
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def report_page():
+def report_page() -> Any:
     threshold = get_attendance_threshold()
     records = all_student_attendance_summary()
 
@@ -37,11 +38,11 @@ def report_page():
     return render_template("report.html", records=records, threshold=threshold)
 
 
-def export_report_csv():
+def export_report_csv() -> Any:
     records = all_student_attendance_summary()
     export_log(session["user_id"], request.remote_addr)
 
-    def generate():
+    def generate() -> Any:
         yield "Roll No.,First Name,Last Name,Present Days,Absent Days,Leave Days,Total Days,Percentage\n"
         for r in records:
             percentage = 0 if r["total_days"] == 0 else round((r["present_days"] / r["total_days"]) * 100, 2)

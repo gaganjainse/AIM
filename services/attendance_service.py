@@ -23,9 +23,10 @@ from repositories.attendance_repository import (
 from routes.permissions import has_permission, teacher_calendar_policy_label, teacher_calendar_scope_label, teacher_edit_window
 from utils.notifications import create_notification
 from utils.logger import log_action
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def attendance_page():
+def attendance_page() -> Any:
     today = date.today()
     selected_date = request.args.get('date') or str(today)
     teacher_start, teacher_end, _ = teacher_edit_window(today)
@@ -93,7 +94,7 @@ def attendance_page():
     )
 
 
-def import_attendance_csv(file_storage):
+def import_attendance_csv(file_storage) -> Any:
     """Import attendance rows from a CSV file while respecting permission windows."""
     if not file_storage or not file_storage.filename:
         return 0, 0, 0, 'Choose a CSV file to import.'
@@ -217,7 +218,7 @@ def import_attendance_csv(file_storage):
     return imported, updated, skipped, None
 
 
-def attendance_events_json():
+def attendance_events_json() -> Any:
     records = attendance_events()
     events = []
     for r in records:

@@ -5,12 +5,12 @@ from typing import Optional
 from repositories.db_utils import fetch_all, fetch_one
 
 
-def total_students():
+def total_students() -> int:
     row = fetch_one("SELECT COUNT(*) AS total FROM students")
     return row["total"] if row else 0
 
 
-def today_summary(today):
+def today_summary(today) -> Any:
     row = fetch_one(
         """
         SELECT
@@ -29,7 +29,7 @@ def today_summary(today):
     }
 
 
-def daily_totals(attendance_date):
+def daily_totals(attendance_date) -> Any:
     row = fetch_one(
         """
         SELECT
@@ -48,12 +48,12 @@ def daily_totals(attendance_date):
     }
 
 
-def attendance_today_count(today):
+def attendance_today_count(today) -> Any:
     row = fetch_one("SELECT COUNT(*) AS count FROM attendance WHERE date=%s", (today,))
     return row["count"] if row else 0
 
 
-def missing_attendance_notice_exists(user_id: int, today):
+def missing_attendance_notice_exists(user_id: int, today) -> Any:
     return fetch_one(
         """
         SELECT 1 FROM notifications
@@ -64,7 +64,7 @@ def missing_attendance_notice_exists(user_id: int, today):
     ) is not None
 
 
-def monthly_progress():
+def monthly_progress() -> Any:
     rows = fetch_all(
         """
         SELECT MONTH(date) AS month,
@@ -83,7 +83,7 @@ def monthly_progress():
     return months
 
 
-def recent_attendance(limit: int = 5):
+def recent_attendance(limit: int = 5) -> Any:
     return fetch_all(
         """
         SELECT s.first_name, s.last_name, a.status, a.date
@@ -96,7 +96,7 @@ def recent_attendance(limit: int = 5):
     )
 
 
-def attendance_for_date(attendance_date, limit: Optional[int] = None):
+def attendance_for_date(attendance_date, limit: Optional[int] = None) -> Any:
     query = """
         SELECT s.first_name, s.last_name, s.roll, a.status, a.date
         FROM attendance a
@@ -111,11 +111,11 @@ def attendance_for_date(attendance_date, limit: Optional[int] = None):
     return fetch_all(query, tuple(params))
 
 
-def all_students_minimal():
+def all_students_minimal() -> List[Dict[str, Any]]:
     return fetch_all("SELECT id, roll, first_name, last_name FROM students ORDER BY first_name, last_name")
 
 
-def students_by_status(today, status: str):
+def students_by_status(today, status: str) -> Any:
     return fetch_all(
         """
         SELECT s.id, s.roll, s.first_name, s.last_name

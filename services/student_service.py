@@ -21,12 +21,13 @@ from repositories.student_repository import (
 from routes.permissions import has_permission
 from utils.notifications import create_notification
 from utils.logger import log_action
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 ROLL_RE = re.compile(r'^[A-Za-z0-9-]{3,20}$')
 NAME_RE = re.compile(r"^[A-Za-z][A-Za-z\s'.-]{0,49}$")
 
 
-def _validate_student(roll, first_name, last_name):
+def _validate_student(roll, first_name, last_name) -> Any:
     if not ROLL_RE.fullmatch(roll or ''):
         return 'Roll number must be 3-20 characters using letters, numbers, or dash.'
     if not NAME_RE.fullmatch(first_name or ''):
@@ -36,7 +37,7 @@ def _validate_student(roll, first_name, last_name):
     return None
 
 
-def students_page():
+def students_page() -> Any:
     page = request.args.get('page', 1, type=int)
     q = request.args.get('q', '').strip()
     per_page = int(session.get('records_per_page') or get_records_per_page_setting())
@@ -52,7 +53,7 @@ def students_page():
     )
 
 
-def import_students_csv(file_storage):
+def import_students_csv(file_storage) -> Any:
     if not file_storage or not file_storage.filename:
         return 0, 0, 'Choose a CSV file to import.'
 
@@ -114,7 +115,7 @@ def import_students_csv(file_storage):
     return imported, updated, None
 
 
-def add_student():
+def add_student() -> int:
     roll = request.form.get('roll', '').strip()
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
@@ -141,7 +142,7 @@ def add_student():
     return redirect(url_for('students.students'))
 
 
-def update_student_page(student_id: int):
+def update_student_page(student_id: int) -> Any:
     roll = request.form.get('roll', '').strip()
     first_name = request.form.get('first_name', '').strip()
     last_name = request.form.get('last_name', '').strip()
@@ -161,12 +162,12 @@ def update_student_page(student_id: int):
     return redirect(url_for('students.students'))
 
 
-def edit_student_page(student_id: int):
+def edit_student_page(student_id: int) -> Any:
     student = get_student(student_id)
     return render_template('edit_student.html', student=student)
 
 
-def delete_student_page(student_id: int):
+def delete_student_page(student_id: int) -> bool:
     student = get_student_name(student_id)
     if not student:
         flash('Student not found.')
@@ -177,7 +178,7 @@ def delete_student_page(student_id: int):
     return redirect(url_for('students.students'))
 
 
-def student_profile_page(student_id: int):
+def student_profile_page(student_id: int) -> Any:
     student = get_student(student_id)
     if not student:
         flash('Student not found.')
@@ -186,7 +187,7 @@ def student_profile_page(student_id: int):
     return render_template('student_profile.html', student=student, stats=stats)
 
 
-def student_chart_page(student_id: int):
+def student_chart_page(student_id: int) -> Any:
     student = get_student_name(student_id)
     if not student:
         flash('Student not found.')

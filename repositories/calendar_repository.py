@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from repositories.db_utils import fetch_all
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 
-def attendance_events():
+def attendance_events() -> Any:
     return fetch_all(
         """
         SELECT date,

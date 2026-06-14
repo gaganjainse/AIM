@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from repositories.db_utils import db_cursor, fetch_all, fetch_one
 from functools import lru_cache
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 DEFAULT_SETTINGS = {
     "system_name": "AIM",
@@ -47,7 +48,7 @@ def ensure_default_settings(cursor) -> bool:
     return changed
 
 
-def list_users():
+def list_users() -> List[Dict[str, Any]]:
     return fetch_all(
         """
         SELECT u.id, u.username, u.email, r.role_name
@@ -59,15 +60,15 @@ def list_users():
     )
 
 
-def list_roles():
+def list_roles() -> List[Dict[str, Any]]:
     return fetch_all("SELECT * FROM roles ORDER BY role_name")
 
 
-def username_exists(username: str):
+def username_exists(username: str) -> Any:
     return fetch_one("SELECT 1 FROM users WHERE username=%s", (username,)) is not None
 
 
-def create_user(username: str, password_hash: str, email: str | None, role_id: int):
+def create_user(username: str, password_hash: str, email: str | None, role_id: int) -> int:
     with db_cursor(dictionary=False) as (conn, cursor):
         cursor.execute(
             "INSERT INTO users (username, password, email, email_notifications) VALUES (%s, %s, %s, %s)",
@@ -78,17 +79,17 @@ def create_user(username: str, password_hash: str, email: str | None, role_id: i
         return cursor, user_id
 
 
-def get_user_username(user_id: int):
+def get_user_username(user_id: int) -> Optional[Dict[str, Any]]:
     row = fetch_one("SELECT username FROM users WHERE id=%s", (user_id,))
     return row["username"] if row else None
 
 
-def delete_user(user_id: int):
+def delete_user(user_id: int) -> bool:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("DELETE FROM users WHERE id=%s", (user_id,))
 
 
-def reset_user_password(user_id: int, password_hash: str):
+def reset_user_password(user_id: int, password_hash: str) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE users SET password=%s WHERE id=%s", (password_hash, user_id))
 
@@ -112,7 +113,7 @@ def _log_columns() -> set[str]:
         return {"user_id", "action", "ip_address", "time"}
 
 
-def list_logs(page: int = 1, per_page: int = 20, q: str | None = None):
+def list_logs(page: int = 1, per_page: int = 20, q: str | None = None) -> List[Dict[str, Any]]:
     offset = max(page - 1, 0) * per_page
     where = ""
     params: list = []
@@ -160,7 +161,7 @@ def count_logs(q: str | None = None) -> int:
     return int(row["total"]) if row else 0
 
 
-def backup_retention_days(default: int = 30):
+def backup_retention_days(default: int = 30) -> Any:
     row = fetch_one("SELECT setting_value FROM settings WHERE setting_name='backup_retention_days' LIMIT 1")
     try:
         return max(1, int(row["setting_value"])) if row and row.get("setting_value") else default
@@ -168,16 +169,16 @@ def backup_retention_days(default: int = 30):
         return default
 
 
-def get_settings_rows():
+def get_settings_rows() -> Optional[Dict[str, Any]]:
     return fetch_all("SELECT setting_name, setting_value FROM settings ORDER BY setting_name")
 
 
-def get_setting_value(setting_name: str):
+def get_setting_value(setting_name: str) -> Optional[Dict[str, Any]]:
     row = fetch_one("SELECT setting_value FROM settings WHERE setting_name=%s LIMIT 1", (setting_name,))
     return row["setting_value"] if row else None
 
 
-def upsert_setting(setting_name: str, setting_value: str):
+def upsert_setting(setting_name: str, setting_value: str) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute(
             """
@@ -194,22 +195,22 @@ def upsert_setting(setting_name: str, setting_value: str):
         pass
 
 
-def mark_notifications_read(user_id: int):
+def mark_notifications_read(user_id: int) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("UPDATE notifications SET is_read = TRUE WHERE user_id=%s", (user_id,))
 
 
-def clear_logs():
+def clear_logs() -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("DELETE FROM logs")
 
 
 
-def list_permissions():
+def list_permissions() -> List[Dict[str, Any]]:
     return fetch_all("SELECT * FROM permissions ORDER BY permission_name")
 
 
-def get_role_permissions(role_id: int):
+def get_role_permissions(role_id: int) -> Optional[Dict[str, Any]]:
     rows = fetch_all(
         """
         SELECT p.permission_name AS name, p.id
@@ -223,7 +224,7 @@ def get_role_permissions(role_id: int):
     return rows
 
 
-def set_role_permissions(role_id: int, permission_ids: list[int]):
+def set_role_permissions(role_id: int, permission_ids: list[int]) -> Any:
     with db_cursor(dictionary=False) as (_, cursor):
         cursor.execute("DELETE FROM role_permissions WHERE role_id=%s", (role_id,))
         for permission_id in permission_ids:

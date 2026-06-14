@@ -28,6 +28,7 @@ from datetime import date, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
+from typing import Any, Optional, Dict, List, Tuple, Union
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env"))
 
@@ -67,7 +68,7 @@ DEMO_TEACHERS = [
 ATTENDANCE_WEIGHTS = [("Present", 78), ("Absent", 14), ("Leave", 8)]
 
 
-def _get_connection():
+def _get_connection() -> Any:
     import mysql.connector
     return mysql.connector.connect(
         host=os.getenv("DB_HOST", "localhost"),
@@ -218,7 +219,7 @@ def reset_data(conn) -> None:
     print("  ✅ All demo data cleared")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Seed AIM demo data")
     parser.add_argument("--students", action="store_true", help="Seed only students")
     parser.add_argument("--attendance", action="store_true", help="Seed only attendance")
