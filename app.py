@@ -18,6 +18,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 from repositories.system_repository import fetch_settings_map, fetch_unread_notifications
 from utils.email import mail
+from api.docs import init_swagger
 from utils.exceptions import AIMException
 
 cache = Cache()
@@ -120,6 +121,8 @@ def create_app() -> Flask:
     app.register_blueprint(calendar_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(search_bp)
+    # ── Swagger API Docs ──────────────────────────────────────────────────────
+    init_swagger(app)
 
     # ── Security Hardening Check ───────────────────────────────────────────────
     _validate_security_config(app)
