@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIM — Attendance Information Manager (Demo)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 720px;
+      text-align: center;
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: #1a1a2e;
+      border: 1px solid #2d2d44;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #e2e8f0;
+    }
+    .card p, .card li {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    .card ul {
+      list-style: none;
+      padding: 0;
+    }
+    .card li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #2d2d44;
+    }
+    .card li:last-child { border-bottom: none; }
+    .card li::before {
+      content: "▸";
+      color: #6366f1;
+      margin-right: 0.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      margin: 0.25rem;
+    }
+    .btn-primary {
+      background: #6366f1;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #818cf8; }
+    .btn-outline {
+      border: 1px solid #2d2d44;
+      color: #94a3b8;
+    }
+    .btn-outline:hover {
+      border-color: #6366f1;
+      color: #e2e8f0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      margin-top: 1rem;
+    }
+    .footer {
+      margin-top: 2rem;
+      color: #475569;
+      font-size: 0.85rem;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .feature-item {
+      background: rgba(99, 102, 241, 0.05);
+      border: 1px solid #2d2d44;
+      border-radius: 8px;
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    @media (max-width: 600px) {
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">A</div>
+    <h1>AIM</h1>
+    <p class="subtitle">Attendance Information Manager</p>
+
+    <div class="card">
+      <h2>Requires MySQL Database</h2>
+      <p>
+        AIM is a production-grade attendance management system that requires a MySQL database
+        to function. A live demo without a database backend is currently unavailable.
+      </p>
+      <p style="margin-top: 0.75rem;">
+        The application includes the following features:
+      </p>
+      <div class="feature-grid">
+        <div class="feature-item">Argon2id Authentication</div>
+        <div class="feature-item">Role-based Access Control</div>
+        <div class="feature-item">Attendance Tracking</div>
+        <div class="feature-item">CSV Import/Export</div>
+        <div class="feature-item">Chart.js Reports</div>
+        <div class="feature-item">FullCalendar UI</div>
+        <div class="feature-item">Prometheus Metrics</div>
+        <div class="feature-item">WCAG 2.1 AA Compliance</div>
+        <div class="feature-item">Docker Compose</div>
+        <div class="feature-item">101 Automated Tests</div>
+      </div>
+      <div class="badge">Production-Ready · 101 Tests · CI/CD</div>
+    </div>
+
+    <div class="card">
+      <h2>Run Locally</h2>
+      <pre style="background: #0f0f1a; padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #a5b4fc; overflow-x: auto;">
+git clone https://github.com/gaganjainse/AIM.git
+cd AIM
+docker compose up --build
+      </pre>
+      <p style="margin-top: 0.75rem;">
+        Or use the traditional setup:
+      </p>
+      <pre style="background: #0f0f1a; padding: 1rem; border-radius: 8px; font-size: 0.85rem; color: #a5b4fc; overflow-x: auto;">
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # edit credentials
+mysql -u root < database/schema.sql
+python run.py
+      </pre>
+    </div>
+
+    <div>
+      <a href="https://github.com/gaganjainse/AIM" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+        View on GitHub
+      </a>
+      <a href="https://gaganjain.vercel.app" class="btn btn-outline" target="_blank" rel="noopener noreferrer">
+        Portfolio
+      </a>
+    </div>
+
+    <p class="footer">
+      AIM — Attendance Information Manager &middot; Built with Flask &middot; Gagan Jain
+    </p>
+  </div>
+</body>
+</html>
