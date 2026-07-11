@@ -40,18 +40,11 @@ AIM follows a classic MVC-like layered architecture, ensuring modularity and mai
 5.  **Deployment (Docker, Gunicorn, Nginx):** The application is containerized using Docker, served by Gunicorn, and reverse-proxied by Nginx for efficient and secure deployment.
 6.  **CI/CD (GitHub Actions):** Automates testing, building, and deployment processes, ensuring code quality and rapid iteration.
 
-```mermaid
-graph TD
-    A[User Browser] -->|HTTPS| B[Nginx (Reverse Proxy)]
-    B --> C[Gunicorn (WSGI Server)]
-    C --> D[Flask Application (Python)]
-    D -- Reads/Writes --> E[MySQL Database]
-    D -- Caching/Sessions --> F[Redis Cache]
-    D -- Metrics --> G[Prometheus]
-    H[Developer] -- Git Push --> I[GitHub Actions (CI/CD)]
-    I -- Builds & Tests --> J[Docker Image]
-    J -- Deploys --> K[Docker Compose]
-    K -- Runs --> B
+```text
+User Browser → Nginx → Gunicorn → Flask App → MySQL
+                                       → Redis (caching/sessions)
+                                       → Prometheus (metrics)
+Developer → GitHub Actions → Docker Image → Docker Compose → Nginx
 ```
 
 ## Getting Started
