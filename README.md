@@ -79,7 +79,7 @@ This will build the Docker images and start the application services. You can th
 ## Cross-links
 
 *   **GitHub Profile:** [https://github.com/gaganjainse](https://github.com/gaganjainse)
-*   **LinkedIn Profile:** [https://linkedin.com/in/gagan-jain-a88aab345](https://linkedin.com/in/gagan-jain-a88aab345)
+*   **LinkedIn Profile:** [https://linkedin.com/in/gaganjainse](https://linkedin.com/in/gaganjainse)
 *   **Portfolio:** [https://gagan-jain-portfolio.vercel.app](https://gagan-jain-portfolio.vercel.app)
 
 ---
