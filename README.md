@@ -42,7 +42,7 @@ AIM follows a classic MVC-like layered architecture, ensuring modularity and mai
 
 ```mermaid
 graph TD
-    A[User Browser] -- "HTTP/HTTPS" --> B[Nginx (Reverse Proxy)]
+    A[User Browser] -->|HTTPS| B[Nginx (Reverse Proxy)]
     B --> C[Gunicorn (WSGI Server)]
     C --> D[Flask Application (Python)]
     D -- Reads/Writes --> E[MySQL Database]
