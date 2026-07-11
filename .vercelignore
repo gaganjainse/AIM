@@ -1,0 +1,12 @@
+.github
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+Procfile
+deploy
+docs
+screenshots
+tests
+CONTRIBUTING.md
+desktop_launcher.py
