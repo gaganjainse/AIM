@@ -29,6 +29,9 @@ def _validate_not_default(value: str, name: str, defaults: list[str]) -> None:
         )
 
 
+_DEMO = os.getenv("VERCEL", "") or os.getenv("DEMO_MODE", "")
+
+
 def _env_bool(name: str, default: bool = False) -> bool:
     value = os.getenv(name)
     if value is None:
@@ -53,16 +56,19 @@ class Config:
     DATA_DIR = os.path.join(BASE_DIR, "data")
     BACKUP_DIR = os.path.join(BASE_DIR, "backups")
 
-    SECRET_KEY = _required_env("FLASK_SECRET")
-    _validate_not_default(SECRET_KEY, "FLASK_SECRET", ["change-me", "change-me-to-a-random-64-char-string", "dev", "secret"])
+    SECRET_KEY = os.getenv("FLASK_SECRET") or ("demo-secret-key-not-for-production" if _DEMO else _required_env("FLASK_SECRET"))
+    if not _DEMO:
+        _validate_not_default(SECRET_KEY, "FLASK_SECRET", ["change-me", "change-me-to-a-random-64-char-string", "dev", "secret", "demo-secret-key-not-for-production"])
 
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = _env_int("DB_PORT", 3306)
     DB_USER = os.getenv("DB_USER", "root")
-    DB_PASSWORD = _required_env("DB_PASSWORD")
-    _validate_not_default(DB_PASSWORD, "DB_PASSWORD", ["change-me", "password", "admin", "root"])
+    DB_PASSWORD = os.getenv("DB_PASSWORD") or ("demo-password" if _DEMO else _required_env("DB_PASSWORD"))
+    if not _DEMO:
+        _validate_not_default(DB_PASSWORD, "DB_PASSWORD", ["change-me", "password", "admin", "root", "demo-password"])
     DB_NAME = os.getenv("DB_NAME", "attendance_db")
     DB_POOL_SIZE = _env_int("DB_POOL_SIZE", 5)
+    DEMO = _DEMO
     MYSQL_BIN = os.getenv("MYSQL_BIN", "mysql")
     MYSQLDUMP_BIN = os.getenv("MYSQLDUMP_BIN", "mysqldump")
     DEBUG = _env_bool("FLASK_DEBUG", False)

@@ -6,7 +6,7 @@ import os
 import secrets
 from typing import Any
 
-from flask import Flask, abort, redirect, render_template, request, session, url_for
+from flask import Flask, abort, redirect, render_template, request, session, url_for, jsonify
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -16,7 +16,7 @@ from markupsafe import Markup
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import Config
-from repositories.system_repository import fetch_settings_map, fetch_unread_notifications
+from database.db import DatabaseUnavailableError
 from utils.email import mail
 from api.docs import init_swagger
 from utils.exceptions import AIMException
@@ -172,8 +172,12 @@ def create_app() -> Flask:
             return Markup(f'<input type="hidden" name="csrf_token" value="{session["_csrf_token"]}">')
 
         try:
+            from repositories.system_repository import fetch_settings_map, fetch_unread_notifications
             settings = fetch_settings_map()
             notifications = fetch_unread_notifications(session["user_id"]) if session.get("user_id") else []
+        except DatabaseUnavailableError:
+            settings = {"system_name": "AIM (Demo)"}
+            notifications = []
         except Exception:
             settings = {}
             notifications = []
@@ -191,6 +195,22 @@ def create_app() -> Flask:
             csrf_token=session.get("_csrf_token", ""),
             active_theme=session.get("theme", "light"),
         )
+
+    # ── Demo Mode ─────────────────────────────────────────────────────────────
+    if Config.DEMO:
+        @app.before_request
+        def check_demo_mode() -> Any:
+            exempt = {"static", "api.health", "api.session_status", "api.docs"}
+            if request.endpoint in exempt or request.path.startswith("/flasgger_static"):
+                return
+            from database.db import get_db_connection, DatabaseUnavailableError
+            try:
+                conn = get_db_connection()
+                conn.close()
+            except DatabaseUnavailableError:
+                return render_template("demo.html"), 200
+            except Exception:
+                return render_template("demo.html"), 200
 
     # ── Health Check ───────────────────────────────────────────────────────────
     @app.route("/health", methods=["GET"])
