@@ -42,7 +42,7 @@ AIM follows a classic MVC-like layered architecture, ensuring modularity and mai
 
 ```mermaid
 graph TD
-    A[User Browser] -- HTTP/S --> B[Nginx (Reverse Proxy)]
+    A[User Browser] -- "HTTP/HTTPS" --> B[Nginx (Reverse Proxy)]
     B --> C[Gunicorn (WSGI Server)]
     C --> D[Flask Application (Python)]
     D -- Reads/Writes --> E[MySQL Database]
@@ -66,9 +66,19 @@ docker-compose up --build -d
 
 This will build the Docker images and start the application services. You can then access the application in your browser at `http://localhost:80` (or the port configured in your Nginx setup).
 
-## Screenshots / Demo Notes
+## Screenshots
 
-*(Placeholder for screenshots or GIF of the AIM dashboard, reporting features, and admin panel.)*
+| File | Description |
+|------|-------------|
+| [`01_login.png`](screenshots/01_login.png) | Login page |
+| [`02_dashboard.png`](screenshots/02_dashboard.png) | Dashboard with demo data — attendance distribution, yesterday's stats, monthly trend |
+| [`03_attendance.png`](screenshots/03_attendance.png) | Attendance marking page with 30 students loaded |
+| [`04_admin_controls.png`](screenshots/04_admin_controls.png) | Admin user management page |
+| [`05_reports.png`](screenshots/05_reports.png) | Attendance reports with color-coded thresholds |
+| [`06_mobile_view.png`](screenshots/06_mobile_view.png) | Mobile responsive layout (375px width) |
+| [`07_dark_mode.png`](screenshots/07_dark_mode.png) | Dark mode dashboard |
+
+See [`screenshots/`](screenshots/) for the full set (7 screenshots covering all major views).
 
 ## Limitations / Future Work
 
@@ -80,7 +90,7 @@ This will build the Docker images and start the application services. You can th
 
 *   **GitHub Profile:** [https://github.com/gaganjainse](https://github.com/gaganjainse)
 *   **LinkedIn Profile:** [https://linkedin.com/in/gaganjainse](https://linkedin.com/in/gaganjainse)
-*   **Portfolio:** [https://gagan-jain-portfolio.vercel.app](https://gagan-jain-portfolio.vercel.app)
+*   **Portfolio:** [https://gaganjain.vercel.app](https://gaganjain.vercel.app)
 
 ---
 
