@@ -13,7 +13,7 @@ AIM provides a complete solution for managing attendance, student records, and a
 *   **Enhanced Security:** Integrates Flask-Talisman (CSP/HSTS) and Flask-CORS for comprehensive security headers.
 *   **Comprehensive Features:** Includes attendance tracking, student management, an admin panel, and detailed reports with Chart.js visualizations, FullCalendar integration, responsive light/dark themes, and CSV import/export.
 *   **Monitoring & Logging:** Configured with a Prometheus metrics endpoint, structured JSON logging, and health checks.
-*   **Extensive Testing:** Boasts 84 tests across 7 files with pytest coverage, ensuring high code quality and reliability.
+*   **Extensive Testing:** Boasts 101 tests across 7 files with pytest coverage, ensuring high code quality and reliability.
 *   **Dockerized Deployment:** Seamless deployment using Docker Compose (multi-stage build, MySQL healthcheck), Gunicorn, and Nginx.
 *   **CI/CD Pipeline:** Full continuous integration and continuous deployment pipeline implemented with GitHub Actions, including Bandit, Safety, Flake8, Pytest, and Docker build verification.
 *   **Accessibility:** WCAG 2.1 AA compliant with ARIA live regions, semantic HTML, and keyboard navigation.
