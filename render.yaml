@@ -1,0 +1,26 @@
+# Render Blueprint — AIM (the full Flask + MySQL app)
+# The Vercel site (aim-live.vercel.app) is a demo landing page only; the real
+# app needs a persistent MySQL, so it runs from its Dockerfile (gunicorn).
+# Deploy: push to GitHub, then "New +" -> "Blueprint" -> select this repo.
+# Post-deploy one-time step: load the schema into MySQL:
+#   mysql -h <DB_HOST> -u <DB_USER> -p <DB_NAME> < database/schema.sql
+services:
+  - type: web
+    name: aim
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_SECRET
+        generateValue: true
+      - key: DB_NAME
+        value: attendance_db
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_HOST
+        sync: false # paste your MySQL host here
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
