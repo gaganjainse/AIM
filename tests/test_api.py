@@ -58,21 +58,21 @@ class TestMetricsEndpoint:
 
 class TestSecurityHeaders:
     def test_security_headers_present(self, client) -> None:
-        with patch("app.fetch_settings_map", return_value={}):
+        with patch("repositories.system_repository.fetch_settings_map", return_value={}):
             response = client.get("/login")
             assert response.headers.get("X-Content-Type-Options") == "nosniff"
             # Talisman may set SAMEORIGIN; we also set DENY in after_request
             assert response.headers.get("X-Frame-Options") in ("DENY", "SAMEORIGIN")
 
     def test_csp_header_present(self, client) -> None:
-        with patch("app.fetch_settings_map", return_value={}):
+        with patch("repositories.system_repository.fetch_settings_map", return_value={}):
             response = client.get("/login")
             assert response.status_code == 200
 
 
 class TestErrorPages:
     def test_404_page(self, client) -> None:
-        with patch("app.fetch_settings_map", return_value={}):
+        with patch("repositories.system_repository.fetch_settings_map", return_value={}):
             response = client.get("/nonexistent-page")
             assert response.status_code == 404
 

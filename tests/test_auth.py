@@ -7,12 +7,12 @@ from unittest.mock import patch, MagicMock
 
 class TestLoginPage:
     def test_login_page_loads(self, client) -> None:
-        with patch("app.fetch_settings_map", return_value={}):
+        with patch("repositories.system_repository.fetch_settings_map", return_value={}):
             response = client.get("/login")
             assert response.status_code == 200
 
     def test_login_page_contains_form(self, client) -> None:
-        with patch("app.fetch_settings_map", return_value={}):
+        with patch("repositories.system_repository.fetch_settings_map", return_value={}):
             response = client.get("/login")
             assert b"login" in response.data.lower() or b"username" in response.data.lower()
 
