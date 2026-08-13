@@ -1,0 +1,11 @@
+# Bandit config — AIM
+# Every exclusion below is a documented false-positive/design decision.
+# Everything not excluded still fails the build (no --exit-zero anywhere).
+exclude_dirs: ["tests", ".venv", "venv", "__pycache__", "demo"]
+skips:
+  - B104   # bind 0.0.0.0 — intentional for containerized deploys (Dockerfile/Procfile)
+  - B108   # /tmp usage — gunicorn standard temp dir; no secrets written there
+  - B310   # urllib urlopen — hardcoded https:// URL only (HaveIBeenPwned API)
+  - B324   # SHA1 — required by the HIBP k-anonymity API spec (5-char prefix over HTTPS)
+  - B608   # SQL string construction — all queries use %s parameterization; string fragments are trusted internal
+  - B704   # Markup — CSRF token is server-generated, never user input
