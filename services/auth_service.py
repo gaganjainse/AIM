@@ -209,7 +209,7 @@ def login_user() -> str:
                         f"If this was not you, change your password immediately."
                     ),
                 )
-            logger.info("User %s logged in from %s", _log_safe(username), new_ip)
+            logger.info("User %s logged in from %s", _log_safe(username), _log_safe(new_ip))
             flash("Logged in successfully")
             return redirect(url_for("dashboard.dashboard"))
 

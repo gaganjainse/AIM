@@ -6,6 +6,7 @@ from datetime import date, datetime
 
 from flask import flash, redirect, render_template, request, session, url_for
 
+from repositories.student_repository import list_students
 from repositories.attendance_repository import (
     attendance_count_for_date,
     attendance_exists,
@@ -14,7 +15,6 @@ from repositories.attendance_repository import (
     daily_totals,
     get_attendance_for_date,
     get_student_id_by_roll,
-    list_students,
     monthly_averages_for_year,
     recent_attendance,
     save_attendance,
