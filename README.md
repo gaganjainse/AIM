@@ -5,7 +5,7 @@ layered architecture, Argon2id auth, CSRF/JWT security, Prometheus monitoring, a
 full CI/CD pipeline.
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python)
-![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-GPL--3.0--or--later-blue?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/Tests-101-success?style=for-the-badge)
 ![CI](https://github.com/gaganjainse/AIM/actions/workflows/ci.yml/badge.svg)
 
@@ -59,4 +59,4 @@ pip-audit -r requirements.txt            # dependency vulnerabilities
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+GPL-3.0-or-later — see [LICENSE](LICENSE).
