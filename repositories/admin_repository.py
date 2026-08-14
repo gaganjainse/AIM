@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 from repositories.db_utils import db_cursor, fetch_all, fetch_one
 from functools import lru_cache
 from typing import Any, Optional, Dict, List, Tuple, Union
@@ -192,7 +196,7 @@ def upsert_setting(setting_name: str, setting_value: str) -> Any:
         from repositories.system_repository import clear_settings_cache
         clear_settings_cache()
     except Exception:
-        pass
+        logger.debug("clear_settings_cache failed (best-effort)", exc_info=True)
 
 
 def mark_notifications_read(user_id: int) -> Any:

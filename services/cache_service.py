@@ -50,7 +50,7 @@ def set_cached_dashboard_data(target_date, data, ttl=TTL_DASHBOARD):
     try:
         cache.set(_make_key(CACHE_PREFIX_DASHBOARD, target_date), data, timeout=ttl)
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def invalidate_dashboard_cache():
@@ -64,7 +64,7 @@ def invalidate_dashboard_cache():
         else:
             cache.clear()
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def get_cached_student_list():
@@ -84,7 +84,7 @@ def set_cached_student_list(students, ttl=TTL_STUDENT):
     try:
         cache.set(_make_key(CACHE_PREFIX_STUDENT, "all"), students, timeout=ttl)
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def invalidate_student_cache():
@@ -96,7 +96,7 @@ def invalidate_student_cache():
             for k in [k for k in cache._cache if k.startswith(CACHE_PREFIX_STUDENT)]:
                 del cache._cache[k]
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def get_cached_attendance_for_date(target_date):
@@ -116,7 +116,7 @@ def set_cached_attendance_for_date(target_date, data, ttl=TTL_ATTENDANCE):
     try:
         cache.set(_make_key(CACHE_PREFIX_ATTENDANCE, target_date), data, timeout=ttl)
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def invalidate_attendance_cache(target_date=None):
@@ -131,7 +131,7 @@ def invalidate_attendance_cache(target_date=None):
                 for k in [k for k in cache._cache if k.startswith(CACHE_PREFIX_ATTENDANCE)]:
                     del cache._cache[k]
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def get_cached_report_data():
@@ -151,7 +151,7 @@ def set_cached_report_data(data, ttl=TTL_REPORT):
     try:
         cache.set(_make_key(CACHE_PREFIX_REPORT, "summary"), data, timeout=ttl)
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def invalidate_report_cache():
@@ -163,7 +163,7 @@ def invalidate_report_cache():
             for k in [k for k in cache._cache if k.startswith(CACHE_PREFIX_REPORT)]:
                 del cache._cache[k]
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)
 
 
 def invalidate_all_cache():
@@ -173,4 +173,4 @@ def invalidate_all_cache():
     try:
         cache.clear()
     except Exception:
-        pass
+        logger.debug("cache operation failed (best-effort)", exc_info=True)

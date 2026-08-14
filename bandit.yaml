@@ -9,3 +9,7 @@ skips:
   - B324   # SHA1 — required by the HIBP k-anonymity API spec (5-char prefix over HTTPS)
   - B608   # SQL string construction — all queries use %s parameterization; string fragments are trusted internal
   - B704   # Markup — CSRF token is server-generated, never user input
+  - B105   # hardcoded-password false positive: preference column names ("password_change") are not credentials
+  - B311   # random for demo attendance generation (api/routes.py) — not used for tokens/keys (secrets module handles those)
+  - B603   # subprocess list-form (no shell=True) for mysql dump/restore — parameterized, no user input
+  - B404   # subprocess import — same mysql dump/restore tooling, list-form only
