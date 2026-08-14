@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+from urllib.parse import urlparse
 from flask import flash, redirect, render_template, request, send_file, session, url_for
 from werkzeug.utils import secure_filename
 
@@ -413,9 +414,17 @@ def settings_page() -> str:
     return render_template("settings.html", settings=rows, settings_map=settings_map, year_prefix=year_prefix, year_suffix=year_suffix)
 
 
+def _redirect_back(default_endpoint: str):
+    """Redirect to the Referer only when same-origin; else the default page."""
+    ref = request.referrer
+    if ref and urlparse(ref).netloc in ("", request.host):
+        return redirect(ref)
+    return redirect(url_for(default_endpoint))
+
+
 def mark_notifications_read_page() -> str:
     mark_notifications_read(session["user_id"])
-    return redirect(request.referrer or url_for("dashboard.dashboard"))
+    return _redirect_back("dashboard.dashboard")
 
 
 def _resolve_mysql_bin(env_var: str) -> str:

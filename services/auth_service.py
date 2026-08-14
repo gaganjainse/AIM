@@ -3,12 +3,30 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from urllib.parse import urlparse
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
 from flask import current_app, flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash as werkzeug_check, generate_password_hash as werkzeug_generate
+
+def _log_safe(value: str) -> str:
+    """Strip CR/LF so user-controlled values cannot forge log lines."""
+    return str(value).replace("\r", "\\r").replace("\n", "\\n")
+
+
+def _redirect_back(default_endpoint: str):
+    """Redirect to the Referer only when same-origin; else the default page.
+
+    Blocks open-redirect: an attacker-controlled Referer header must not be
+    able to bounce a logged-in user to an external site.
+    """
+    ref = request.referrer
+    if ref and urlparse(ref).netloc in ("", request.host):
+        return redirect(ref)
+    return redirect(url_for(default_endpoint))
+
 
 from config import Config
 from repositories.auth_repository import (
@@ -191,7 +209,7 @@ def login_user() -> str:
                         f"If this was not you, change your password immediately."
                     ),
                 )
-            logger.info("User %s logged in from %s", username, new_ip)
+            logger.info("User %s logged in from %s", _log_safe(username), new_ip)
             flash("Logged in successfully")
             return redirect(url_for("dashboard.dashboard"))
 
@@ -209,11 +227,11 @@ def login_user() -> str:
                 ),
             )
             flash(f"Account locked for {lock_minutes} minutes after too many failed attempts.")
-            logger.warning("Account locked for user %s after %d failed attempts", username, attempts)
+            logger.warning("Account locked for user %s after %d failed attempts", _log_safe(username), attempts)
         else:
             increment_failed_attempts(user["id"], attempts)
             flash("Invalid login")
-            logger.info("Failed login for user %s (attempt %d)", username, attempts)
+            logger.info("Failed login for user %s (attempt %d)", _log_safe(username), attempts)
 
     return render_template("login.html")
 
