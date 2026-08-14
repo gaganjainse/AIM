@@ -9,6 +9,11 @@ full CI/CD pipeline.
 ![Tests](https://img.shields.io/badge/Tests-101-success?style=for-the-badge)
 ![CI](https://github.com/gaganjainse/AIM/actions/workflows/ci.yml/badge.svg)
 
+- **License:** GPL-3.0-or-later
+- **Owner:** Gagan Jain ([@gaganjainse](https://github.com/gaganjainse))
+- **Stack:** Flask · MySQL · Argon2id · Prometheus
+
+
 ## Quick start
 
 ```bash
@@ -60,6 +65,8 @@ pip-audit -r requirements.txt            # dependency vulnerabilities
 ## License
 
 GPL-3.0-or-later — see [LICENSE](LICENSE).
-## 📚 Docs
 
-Fleet-wide reading compilation: [shesh-docs](https://github.com/gaganjainse/shesh-docs).
+## Status
+
+CI green. Security: [SECURITY.md](SECURITY.md). Compiled reading:
+[shesh-docs](https://github.com/gaganjainse/shesh-docs).
